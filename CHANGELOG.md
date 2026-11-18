@@ -6,6 +6,11 @@ Fluxo: toda mudança entra pela branch `teste` (https://gusto.m3d.pro/teste/) e 
 ## [Não lançado]
 Próxima iteração (sugestão, ver `docs/ARQUITETURA.md` §8): ligar a interface base à API (login único), testes de integração com PostGIS no CI, TURN em produção.
 
+## [0.1.2-alpha] — 2026-11-18
+### Corrigido
+- `setup-vps.sh` desativa o site Nginx da instalação antiga sem Docker (`gusto-<domínio>.conf`), que disputava o mesmo `server_name`, e avisa se o serviço `gusto` antigo ainda estiver rodando.
+- Diagnóstico registrado: o registro A de `gusto.m3d.pro` apontava para `159.223.22.8` (faltava o último dígito); o correto é `159.223.22.82`.
+
 ## [0.1.1-alpha] — 2026-11-18
 Automação das atualizações (GitHub → VPS e manutenção da própria VPS).
 

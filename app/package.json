@@ -1,6 +1,6 @@
 {
   "name": "gusto-api",
-  "version": "0.1.1-alpha",
+  "version": "0.1.2-alpha",
   "description": "Gusto — receitas, preparo, entrega e comunidade · camada OS (janelas, grafos, IA, LGPD) · by m3d.pro",
   "type": "module",
   "private": true,

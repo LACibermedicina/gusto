@@ -105,6 +105,20 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TPL="$HERE/nginx/gusto.conf.tpl"; [[ -f "$TPL" ]] || TPL="/opt/gusto/codigo/deploy/nginx/gusto.conf.tpl"
 [[ -f "$TPL" ]] || die "modelo do Nginx não encontrado (deploy/nginx/gusto.conf.tpl)."
 SITE="/etc/nginx/sites-available/$DOMINIO.conf"
+# Instalação antiga (deploy/bare-metal/install.sh) publica o mesmo domínio em gusto-$DOMINIO.conf:
+# dois server_name iguais fazem o Nginx servir o primeiro que carregar. Desativa o antigo (com cópia).
+for antigo in "/etc/nginx/sites-enabled/gusto-$DOMINIO.conf" /etc/nginx/sites-enabled/default; do
+  [[ -e "$antigo" ]] || continue
+  if [[ "$antigo" == */default ]]; then
+    grep -E "server_name[^;]*\b$DOMINIO\b" "$antigo" >/dev/null || continue
+  fi
+  aviso "desativando site Nginx antigo para $DOMINIO: $antigo (cópia em /root/nginx-antigo-$(basename "$antigo").bak)"
+  cp -L "$antigo" "/root/nginx-antigo-$(basename "$antigo").bak"; rm -f "$antigo"
+done
+if systemctl is-active --quiet gusto 2>/dev/null; then
+  aviso "o serviço 'gusto' da instalação antiga (sem Docker) continua rodando na porta interna dele; ele não atende mais o domínio."
+  aviso "  para desligar: systemctl disable --now gusto   (o banco antigo do host é mantido)"
+fi
 cat > /etc/nginx/conf.d/gusto-websocket-map.conf <<'EOF'
 # GUSTO · cabeçalho Connection para WebSocket (nome próprio para não colidir com outros sites)
 map $http_upgrade $gusto_connection_upgrade { default upgrade; '' close; }
