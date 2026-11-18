@@ -2,6 +2,7 @@
 -- Antes de rodar:  SET app.root_initial_password = '<senha inicial do root>';
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS btree_gist;   -- v0.1.0: necessário para EXCLUDE com uuid (kitchen_rentals)
 
 CREATE TYPE role_code AS ENUM ('client','cook','courier','inspector');
 CREATE TYPE order_status AS ENUM ('requested','cooking','ready','pickup','in_route','delivered','cancelled');

@@ -1,0 +1,21 @@
+{
+  "name": "gusto-api",
+  "version": "0.1.0-alpha",
+  "description": "Gusto — receitas, preparo, entrega e comunidade · camada OS (janelas, grafos, IA, LGPD) · by m3d.pro",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test ../test/*.test.js"
+  },
+  "engines": { "node": ">=22" },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^7.1.0",
+    "pg": "^8.12.0",
+    "three": "^0.170.0",
+    "ws": "^8.18.0"
+  }
+}

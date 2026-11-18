@@ -1,0 +1,114 @@
+# GUSTO · stack completa (Regra de Arte): app (web + API + WebSocket/WebRTC + IA) · PostGIS · migrações · backup · TURN opcional
+# O proxy reverso/TLS é o Nginx do host (VPS compartilhada com outros apps); a app só escuta em 127.0.0.1.
+# Uso: docker compose --env-file /opt/gusto/.env up -d --build      (variáveis em .env.example)
+name: ${COMPOSE_PROJECT_NAME:-gusto}
+
+x-endurecido: &endurecido
+  security_opt: ["no-new-privileges:true"]
+  logging: { driver: json-file, options: { max-size: "10m", max-file: "3" } }
+
+services:
+  db:
+    <<: *endurecido
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:?defina POSTGRES_SUPERUSER_PASSWORD}
+      POSTGRES_DB: gusto
+    volumes: [db:/var/lib/postgresql/data]
+    networks: [interna]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d gusto"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  migrate:
+    <<: *endurecido
+    image: postgis/postgis:16-3.4
+    restart: "no"
+    depends_on: { db: { condition: service_healthy } }
+    entrypoint: ["bash", "/deploy/migrate.sh"]
+    environment:
+      PGHOST: db
+      PGUSER: postgres
+      PGDATABASE: gusto
+      PGPASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
+      GUSTO_DB_PASSWORD: ${GUSTO_DB_PASSWORD:?defina GUSTO_DB_PASSWORD}
+      GUSTO_ROOT_PASSWORD: ${GUSTO_ROOT_PASSWORD:-}
+    volumes:
+      - ./db/migrations:/migrations:ro
+      - ./deploy/migrate.sh:/deploy/migrate.sh:ro
+    networks: [interna]
+
+  app:
+    <<: *endurecido
+    build: ./app
+    image: ${APP_IMAGE:-gusto-app}:latest
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+    read_only: true
+    tmpfs: ["/tmp"]
+    cap_drop: [ALL]
+    ports: ["127.0.0.1:${PORTA:-3301}:3000"]
+    networks: [interna, saida]
+    # Lista explícita (nada de env_file): a app não recebe a senha de superusuário do banco.
+    environment:
+      DATABASE_URL: postgres://gusto:${GUSTO_DB_PASSWORD}@db:5432/gusto
+      CODE_SECRET: ${CODE_SECRET:?defina CODE_SECRET}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      COOKIE_SECURE: ${COOKIE_SECURE:-1}
+      PAYMENTS_PROVIDER: ${PAYMENTS_PROVIDER:-mock}
+      PSP_API_URL: ${PSP_API_URL:-}
+      PSP_API_KEY: ${PSP_API_KEY:-}
+      AMBIENTE: ${AMBIENTE:-producao}
+      BASE_PATH: ${BASE_PATH:-}
+      COOKIE_NAME: ${COOKIE_NAME:-gusto_sid}
+      IA_ORDEM: ${IA_ORDEM:-gemini,anthropic,openai}
+      IA_GEMINI_KEYS: ${IA_GEMINI_KEYS:-}
+      IA_ANTHROPIC_KEYS: ${IA_ANTHROPIC_KEYS:-}
+      IA_OPENAI_KEYS: ${IA_OPENAI_KEYS:-}
+      IA_GEMINI_MODELO: ${IA_GEMINI_MODELO:-}
+      IA_ANTHROPIC_MODELO: ${IA_ANTHROPIC_MODELO:-}
+      IA_OPENAI_MODELO: ${IA_OPENAI_MODELO:-}
+      IA_OPENAI_URL: ${IA_OPENAI_URL:-}
+      STUN_URLS: ${STUN_URLS:-stun:stun.l.google.com:19302}
+      TURN_URL: ${TURN_URL:-}
+      TURN_SECRET: ${TURN_SECRET:-}
+      CHAT_RETENTION_DAYS: ${CHAT_RETENTION_DAYS:-30}
+      LGPD_CONTROLADOR: ${LGPD_CONTROLADOR:-M3D.pro}
+      LGPD_DPO_CONTATO: ${LGPD_DPO_CONTATO:-}
+
+  backup:
+    <<: *endurecido
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    depends_on: { db: { condition: service_healthy } }
+    environment: { PGHOST: db, PGUSER: postgres, PGPASSWORD: "${POSTGRES_SUPERUSER_PASSWORD}", PGDATABASE: gusto }
+    volumes: ["${BACKUP_DIR:-./backups}:/backups"]
+    networks: [interna]
+    entrypoint: ["bash", "-c", "umask 077; while true; do pg_dump --no-owner | gzip > /backups/gusto-$$(date +%F).sql.gz && find /backups -name 'gusto-*.sql.gz' -mtime +14 -delete; sleep 86400; done"]
+
+  # Relay TURN para videochamadas atrás de NAT restritivo. Ative com: --profile turn
+  turn:
+    image: coturn/coturn:4.6
+    profiles: ["turn"]
+    restart: unless-stopped
+    network_mode: host
+    command: >-
+      -n --log-file=stdout --listening-port=3478 --fingerprint --use-auth-secret
+      --static-auth-secret=${TURN_SECRET:-trocar} --realm=${DOMINIO:-gusto.m3d.pro}
+      --min-port=49160 --max-port=49200 --no-cli --no-tls --no-dtls --no-multicast-peers
+      --denied-peer-ip=10.0.0.0-10.255.255.255 --denied-peer-ip=172.16.0.0-172.31.255.255
+      --denied-peer-ip=192.168.0.0-192.168.255.255 --denied-peer-ip=127.0.0.0-127.255.255.255
+
+volumes:
+  db:
+
+networks:
+  interna: { internal: true }
+  saida: {}

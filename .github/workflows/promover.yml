@@ -1,0 +1,33 @@
+# GUSTO · promove homologação para produção (teste → main) depois que o usuário testou em /teste/
+name: promover
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmacao:
+        description: 'Digite PROMOVER para levar a branch "teste" para "main" (produção)'
+        required: true
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  promover:
+    if: inputs.confirmacao == 'PROMOVER'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Avanço rápido main ← teste
+        run: |
+          git fetch origin teste
+          git merge --ff-only origin/teste || { echo "::error::main divergiu de teste; resolva com um PR teste→main."; exit 1; }
+          git push origin main
+      # Pushes feitos com GITHUB_TOKEN não disparam outros workflows; o deploy é acionado explicitamente.
+      - name: Disparar deploy de produção
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main

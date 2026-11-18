@@ -1,0 +1,106 @@
+# GUSTO · CI/CD: testes → deploy via SSH na VPS
+#   push em "teste" → homologação  https://gusto.m3d.pro/teste/   (/opt/gusto-teste)
+#   push em "main"  → produção     https://gusto.m3d.pro          (/opt/gusto)
+# Segredos (repositório ou GitHub Environments "producao"/"teste"):
+#   VPS_HOST, VPS_USER, VPS_SSH_KEY, [VPS_KNOWN_HOSTS], [SERVIDOR_ENV]
+name: deploy
+
+on:
+  push:
+    branches: [main, teste]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - name: Dependências
+        working-directory: app
+        run: npm ci --no-audit --no-fund
+      - name: Testes
+        working-directory: app
+        run: npm test
+      - name: Sintaxe dos scripts e do compose
+        run: |
+          for f in deploy/*.sh deploy/bare-metal/*.sh; do bash -n "$f"; done
+          printf 'POSTGRES_SUPERUSER_PASSWORD=x\nGUSTO_DB_PASSWORD=x\nCODE_SECRET=x\n' > /tmp/ci.env
+          docker compose --env-file /tmp/ci.env config -q
+
+  deploy:
+    needs: testes
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: ${{ github.ref_name == 'main' && 'producao' || 'teste' }}
+    env:
+      AMBIENTE: ${{ github.ref_name == 'main' && 'producao' || 'teste' }}
+      RAIZ: ${{ github.ref_name == 'main' && '/opt/gusto' || '/opt/gusto-teste' }}
+      URL_PUBLICA: ${{ github.ref_name == 'main' && 'https://gusto.m3d.pro' || 'https://gusto.m3d.pro/teste' }}
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USER: ${{ secrets.VPS_USER || 'root' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Conferir segredos
+        id: seg
+        env:
+          K: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          if [ -z "$VPS_HOST" ] || [ -z "$K" ]; then
+            echo "::warning::VPS_HOST/VPS_SSH_KEY não configurados — deploy pulado (testes passaram)."
+            echo "ok=0" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=1" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Preparar SSH
+        if: steps.seg.outputs.ok == '1'
+        env:
+          K: ${{ secrets.VPS_SSH_KEY }}
+          KH: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$K" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+          if [ -n "$KH" ]; then printf '%s\n' "$KH" > ~/.ssh/known_hosts; else ssh-keyscan -T 15 -H "$VPS_HOST" > ~/.ssh/known_hosts; fi
+          printf 'Host vps\n  HostName %s\n  User %s\n  IdentityFile ~/.ssh/id_deploy\n  IdentitiesOnly yes\n  ServerAliveInterval 30\n' "$VPS_HOST" "$VPS_USER" > ~/.ssh/config
+
+      - name: Enviar código (rsync)
+        if: steps.seg.outputs.ok == '1'
+        run: |
+          ssh vps "test -f $RAIZ/.env.gerado" || { echo "::error::Rode deploy/setup-vps.sh na VPS antes do primeiro deploy."; exit 1; }
+          echo "${GITHUB_SHA::7} $(date -u +%FT%TZ)" > VERSION.deploy
+          rsync -az --delete --exclude .git --exclude node_modules --exclude '.env*' --exclude backups ./ vps:"$RAIZ/codigo/"
+
+      - name: Enviar segredos de aplicação (SERVIDOR_ENV)
+        if: steps.seg.outputs.ok == '1'
+        env:
+          SERVIDOR_ENV: ${{ secrets.SERVIDOR_ENV }}
+        run: |
+          if [ -n "$SERVIDOR_ENV" ]; then
+            printf '%s\n' "$SERVIDOR_ENV" | ssh vps "umask 077; cat > $RAIZ/.env.segredos"
+          else
+            echo "SERVIDOR_ENV vazio: mantendo $RAIZ/.env.segredos atual (se existir)."
+          fi
+
+      - name: Publicar
+        if: steps.seg.outputs.ok == '1'
+        run: ssh vps "bash $RAIZ/codigo/deploy/remote-deploy.sh --ambiente $AMBIENTE"
+
+      - name: Verificar pela internet
+        if: steps.seg.outputs.ok == '1'
+        run: |
+          for i in $(seq 10); do curl -fsS "$URL_PUBLICA/health" && exit 0; sleep 3; done
+          echo "::warning::$URL_PUBLICA/health não respondeu de fora (DNS/certificado?). A app respondeu localmente na VPS."

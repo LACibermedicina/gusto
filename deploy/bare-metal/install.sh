@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # GUSTO · instalador para Debian/Ubuntu · by m3d.pro
 set -Eeuo pipefail
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"; REPO="$(cd "$HERE/../.." && pwd)"  # v0.1.0: app e migrações vêm da raiz do repositório
 APP_DIR=/opt/gusto; ENV_FILE=/etc/gusto/gusto.env; DB=gusto
 DOMAIN=""; PORT=3000; PUBLIC_PORT=443; EMAIL=""; ROOTPW="${GUSTO_ROOT_PASSWORD:-}"; TLS=1
 log(){ printf '\033[1;32m==>\033[0m %s\n' "$*"; }
@@ -62,7 +62,7 @@ NODE_BIN="$(command -v node)"
 # ---- usuário e arquivos ----
 id gusto &>/dev/null || useradd --system --home "$APP_DIR" --shell /usr/sbin/nologin gusto
 install -d -o gusto -g gusto "$APP_DIR/app"
-cp -a "$HERE/app/." "$APP_DIR/app/"; chown -R gusto:gusto "$APP_DIR"
+cp -a "$REPO/app/." "$APP_DIR/app/"; chown -R gusto:gusto "$APP_DIR"
 log "Instalando dependências do app"
 (cd "$APP_DIR/app" && runuser -u gusto -- env HOME="$APP_DIR" npm install --omit=dev --no-audit --no-fund --loglevel=error)
 
@@ -93,7 +93,7 @@ if [[ -z "$(pq -c "SELECT 1 FROM pg_roles WHERE rolname='gusto'")" ]]; then pq -
 if [[ -z "$(pq -c "SELECT 1 FROM pg_database WHERE datname='$DB'")" ]]; then pq -c "CREATE DATABASE $DB OWNER gusto"; fi
 pq -d "$DB" -c "CREATE TABLE IF NOT EXISTS schema_migrations(name text PRIMARY KEY, applied_at timestamptz DEFAULT now())"
 Q="'"; ESC="${ROOTPW//$Q/$Q$Q}"
-for f in "$HERE"/sql/*.sql; do n="$(basename "$f")"
+for f in "$REPO"/db/migrations/*.sql; do n="$(basename "$f")"
   if [[ -z "$(pq -d "$DB" -c "SELECT 1 FROM schema_migrations WHERE name='$n'")" ]]; then
     log "Aplicando migração $n"
     { printf "SET app.root_initial_password = '%s';\n" "$ESC"; cat "$f"; printf "\nINSERT INTO schema_migrations(name) VALUES ('%s');\n" "$n"; } \

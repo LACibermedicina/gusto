@@ -1,6 +1,8 @@
 // GUSTO API · Express + PostgreSQL · by m3d.pro
 import express from "express";import pg from "pg";import bcrypt from "bcryptjs";import crypto from "crypto";import helmet from "helmet";import rateLimit from "express-rate-limit";import path from "path";import{fileURLToPath}from"url";
+import{montarOS,anexarWS,cspOS,PERMISSIONS_POLICY}from"./os/index.js"; // camada OS v0.1.0-alpha
 const{DATABASE_URL,PORT=3000,CODE_SECRET,NODE_ENV}=process.env;
+const BP=(process.env.BASE_PATH||"").replace(/\/+$/,""),CK=process.env.COOKIE_NAME||"gusto_sid",CKRE=new RegExp("(?:^|;\\s*)"+CK+"=([a-f0-9]{64})"); // homologação em /teste/ com cookie próprio
 if(!CODE_SECRET||CODE_SECRET.length<32)throw new Error("Defina CODE_SECRET com 32+ caracteres");
 const pool=new pg.Pool({connectionString:DATABASE_URL}),q=(t,p)=>pool.query(t,p);
 class E extends Error{constructor(s,m){super(m);this.s=s}}
@@ -11,7 +13,7 @@ const ah=f=>(a,b,c)=>f(a,b,c).catch(c),one=r=>r.rows[0];
 const au=(c,actor,action,entity,id,detail)=>c.query("insert into audit_log(actor,action,entity,entity_id,detail) values($1,$2,$3,$4,$5)",[actor,action,entity,id,detail||null]);
 const hist=(c,oid,st,by)=>c.query("insert into order_status_history(order_id,status,by_user) values($1,$2,$3)",[oid,st,by]);
 const ROLES=["client","cook","courier","inspector"];
-const A=ah(async(req,res,next)=>{const m=/gusto_sid=([a-f0-9]{64})/.exec(req.headers.cookie||"");if(!m)throw new E(401,"Não autenticado");
+const A=ah(async(req,res,next)=>{const m=CKRE.exec(req.headers.cookie||"");if(!m)throw new E(401,"Não autenticado");
  const u=one(await q(`select u.id,u.username,u.display_name,u.is_root,u.must_change_password,array(select role::text from user_roles where user_id=u.id) roles from sessions s join users u on u.id=s.user_id where s.token_hash=$1 and not s.revoked and s.expires_at>now() and u.is_active`,[sha(m[1])]));
  if(!u)throw new E(401,"Sessão inválida");req.u=u;req.tok=sha(m[1]);
  if(u.must_change_password&&!["/auth/password","/me"].includes(req.path))throw new E(403,"Troque a senha inicial");next()});
@@ -43,7 +45,7 @@ async function applyEvent(name,ev){await tx(async c=>{if(!(await c.query("insert
  const l=one(await c.query("select * from payment_links where id=$1 and provider=$2 and provider_ref=$3 for update",[ev.external_reference,name,String(ev.provider_ref)]));if(!l)throw new E(404,"Cobrança desconhecida");await settle(c,l,ev)})}
 const webhook=async(req,res)=>{const pv=providers[req.params.provider];if(!pv)throw new E(404,"Provedor desconhecido");if(!Buffer.isBuffer(req.body)||!pv.verify(req.body,req.headers))throw new E(401,"Assinatura inválida");
  let ev;try{ev=JSON.parse(req.body.toString("utf8"))}catch{throw new E(400,"JSON inválido")}await applyEvent(pv.name,ev);res.json({ok:true})};
-const app=express();app.set("trust proxy",1);app.use(helmet({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],scriptSrc:["'self'","'unsafe-inline'","https://cdnjs.cloudflare.com"],scriptSrcAttr:["'unsafe-inline'"],styleSrc:["'self'","'unsafe-inline'"],imgSrc:["'self'","data:"],connectSrc:["'self'","https://overpass-api.de"],frameAncestors:["'none'"],objectSrc:["'none'"],...(process.env.COOKIE_SECURE=="0"?{upgradeInsecureRequests:null}:{})}}}));app.use((req,res,n)=>{res.setHeader("Permissions-Policy","geolocation=(self)");n()});app.post("/webhooks/:provider",express.raw({type:"*/*",limit:"100kb"}),ah(webhook));app.use(express.json({limit:"100kb"}));
+const app=express();app.set("trust proxy",1);app.use(helmet({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],scriptSrc:["'self'","'unsafe-inline'","https://cdnjs.cloudflare.com"],scriptSrcAttr:["'unsafe-inline'"],styleSrc:["'self'","'unsafe-inline'"],imgSrc:["'self'","data:","blob:"],connectSrc:["'self'","https://overpass-api.de",...cspOS.connectSrc],mediaSrc:["'self'","blob:"],workerSrc:["'self'","blob:"],frameAncestors:["'none'"],objectSrc:["'none'"],...(process.env.COOKIE_SECURE=="0"?{upgradeInsecureRequests:null}:{})}}}));app.use((req,res,n)=>{res.setHeader("Permissions-Policy",PERMISSIONS_POLICY);if(process.env.AMBIENTE=="teste")res.setHeader("X-Robots-Tag","noindex, nofollow");n()});app.post("/webhooks/:provider",express.raw({type:"*/*",limit:"100kb"}),ah(webhook));app.use(express.json({limit:"100kb"}));
 app.use((req,res,n)=>req.method!="GET"&&!req.is("json")?res.status(415).json({error:"Envie JSON (proteção CSRF)"}):n());
 
 // ===== AUTENTICAÇÃO =====
@@ -56,9 +58,9 @@ app.post("/auth/login",rateLimit({windowMs:60000,max:20}),ah(async(req,res)=>{
  const t=crypto.randomBytes(32).toString("hex");
  await q("insert into sessions(user_id,token_hash,ip,user_agent,expires_at) values($1,$2,$3,$4,now()+interval '8 hours')",[u.id,sha(t),req.ip,req.get("user-agent")]);
  await q("update users set failed_logins=0,locked_until=null where id=$1",[u.id]);await au(pool,u.id,"login","user",u.id);
- res.setHeader("Set-Cookie",`gusto_sid=${t}; HttpOnly; SameSite=Lax; Path=/; Max-Age=28800${process.env.COOKIE_SECURE=="0"?"":"; Secure"}`);
+ res.setHeader("Set-Cookie",`${CK}=${t}; HttpOnly; SameSite=Lax; Path=${BP||"/"}; Max-Age=28800${process.env.COOKIE_SECURE=="0"?"":"; Secure"}`);
  res.json({ok:true,must_change_password:u.must_change_password})}));
-app.post("/auth/logout",A,ah(async(req,res)=>{await q("update sessions set revoked=true where token_hash=$1",[req.tok]);res.setHeader("Set-Cookie","gusto_sid=; Max-Age=0; Path=/");res.json({ok:true})}));
+app.post("/auth/logout",A,ah(async(req,res)=>{await q("update sessions set revoked=true where token_hash=$1",[req.tok]);res.setHeader("Set-Cookie",`${CK}=; Max-Age=0; Path=${BP||"/"}`);res.json({ok:true})}));
 app.post("/auth/password",A,ah(async(req,res)=>{const{old,next}=req.body;if(String(next||"").length<8)throw new E(400,"Nova senha com 8+ caracteres");
  const u=one(await q("select password_hash from users where id=$1",[req.u.id]));if(!await bcrypt.compare(String(old||""),u.password_hash))throw new E(401,"Senha atual incorreta");
  await q("update users set password_hash=$2,must_change_password=false where id=$1",[req.u.id,await bcrypt.hash(next,12)]);
@@ -175,8 +177,8 @@ const byTok=async t=>{const l=one(await q("select pl.*,u.display_name from payme
 const pub=rateLimit({windowMs:60000,max:60});
 app.get("/pay/:token",pub,ah(async(req,res)=>{const l=await byTok(req.params.token);if(!l)return res.status(404).send(page("<h2>Link inválido</h2>"));
  const m={paid:"✅ Pagamento confirmado. Obrigado!",expired:"⌛ Este link expirou.",cancelled:"🚫 Este link foi cancelado."}[l.status];
- res.send(page(`<h2>Gusto · cobrança</h2><p>${esc(l.display_name)}${l.description?": "+esc(l.description):""}</p><p style="font-size:28px;font-weight:700">R$ ${Number(l.amount_brl).toFixed(2).replace(".",",")}</p>${m?`<p>${m}</p>`:`<a class="b" href="/pay/${esc(encodeURIComponent(req.params.token))}/go">Pagar agora</a>`}`))}));
-app.get("/pay/:token/go",pub,ah(async(req,res)=>{let l=await byTok(req.params.token);if(!l||!["open","processing"].includes(l.status))return res.redirect("/pay/"+encodeURIComponent(req.params.token));
+ res.send(page(`<h2>Gusto · cobrança</h2><p>${esc(l.display_name)}${l.description?": "+esc(l.description):""}</p><p style="font-size:28px;font-weight:700">R$ ${Number(l.amount_brl).toFixed(2).replace(".",",")}</p>${m?`<p>${m}</p>`:`<a class="b" href="${BP}/pay/${esc(encodeURIComponent(req.params.token))}/go">Pagar agora</a>`}`))}));
+app.get("/pay/:token/go",pub,ah(async(req,res)=>{let l=await byTok(req.params.token);if(!l||!["open","processing"].includes(l.status))return res.redirect(BP+"/pay/"+encodeURIComponent(req.params.token));
  if(!l.provider_ref){const ch=await PV.charge(l);l=one(await q("update payment_links set provider_ref=$2,pay_url=$3,pix_code=$4,status='processing' where id=$1 and provider_ref is null returning *",[l.id,ch.ref,ch.pay_url||null,ch.pix_code||null]))||await byTok(req.params.token)}
  if(l.pay_url&&/^https:\/\//.test(l.pay_url))return res.redirect(l.pay_url);
  res.send(page(`<h2>Pague com Pix</h2><p>Copie o código no app do seu banco:</p><code>${esc(l.pix_code)}</code><p>A confirmação é automática.</p>`))}));
@@ -199,6 +201,8 @@ app.get("/calendar",A,feat("calendar"),ah(async(req,res)=>res.json((await q("sel
 app.patch("/calendar/:id",A,feat("calendar"),ah(async(req,res)=>{const[d,t,src]=cdt(req.body);const r=await q(`update calendar_entries set starts_at=${TS.replace("$4","$2").replace("$5","$3")},time_source=$5 where id=$1 and user_id=$4`,[req.params.id,d,t,req.u.id,src]);if(!r.rowCount)throw new E(404,"Entrada não encontrada");res.json({ok:true})}));
 app.delete("/calendar/:id",A,feat("calendar"),ah(async(req,res)=>{await q("delete from calendar_entries where id=$1 and user_id=$2",[req.params.id,req.u.id]);res.json({ok:true})}));
 app.get("/health",(req,res)=>res.json({ok:true}));
+montarOS(app,{q,tx,pool,A,root,feat,E,ah,au,one,sha,CKRE,BP});
 app.use(express.static(path.join(path.dirname(fileURLToPath(import.meta.url)),"public"),{maxAge:"1h"}));
 app.use((e,req,res,next)=>{if(!e.s&&e.code!="23505")console.error(e);const s=e.s||(e.code=="23505"?409:500);res.status(s).json({error:e.s?e.message:e.code=="23505"?"Registro duplicado":"Erro interno"})});
-app.listen(PORT,process.env.HOST||"127.0.0.1",()=>console.log("Gusto na porta "+PORT));
+const srv=app.listen(PORT,process.env.HOST||"127.0.0.1",()=>console.log("Gusto na porta "+PORT+(BP?" (base "+BP+")":"")));anexarWS(srv,{q,one,sha,CKRE});
+const fim=s=>{console.log("Encerrando ("+s+")");srv.close(()=>pool.end().finally(()=>process.exit(0)));setTimeout(()=>process.exit(1),8000).unref()};process.on("SIGTERM",fim);process.on("SIGINT",fim);
