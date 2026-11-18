@@ -125,7 +125,10 @@ map $http_upgrade $gusto_connection_upgrade { default upgrade; '' close; }
 EOF
 install -d /var/www/certbot
 if [[ ! -s "/etc/letsencrypt/live/$DOMINIO/fullchain.pem" ]]; then
-  getent hosts "$DOMINIO" >/dev/null || die "o DNS de $DOMINIO ainda não resolve. Crie o registro A apontando para este servidor e rode de novo."
+  IP_DNS="$(getent ahostsv4 "$DOMINIO" | awk 'NR==1{print $1}')"
+  [[ -n "$IP_DNS" ]] || die "o DNS de $DOMINIO ainda não resolve. Crie o registro A apontando para este servidor e rode de novo."
+  MEUS_IPS=" $(hostname -I) $(curl -fsS -m 5 https://api.ipify.org 2>/dev/null || true) "
+  [[ "$MEUS_IPS" == *" $IP_DNS "* ]] || die "o DNS de $DOMINIO aponta para $IP_DNS, mas este servidor é$(echo "$MEUS_IPS" | tr -s ' ' | sed 's/ $//'). Corrija o registro A e rode de novo (o certificado falharia)."
   log "Emitindo certificado Let's Encrypt para $DOMINIO"
   printf 'server {\n  listen 80;\n  listen [::]:80;\n  server_name %s;\n  location /.well-known/acme-challenge/ { root /var/www/certbot; }\n  location / { return 404; }\n}\n' "$DOMINIO" > "$SITE"
   ln -sf "$SITE" "/etc/nginx/sites-enabled/$DOMINIO.conf"; nginx -t; systemctl reload nginx
