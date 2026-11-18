@@ -1,6 +1,7 @@
 # GUSTO · CI/CD: testes → deploy via SSH na VPS
 #   push em "teste" → homologação  https://gusto.m3d.pro/teste/   (/opt/gusto-teste)
 #   push em "main"  → produção     https://gusto.m3d.pro          (/opt/gusto)
+#   chamado por manutencao.yml (semanal) → reconstrói com imagens base atualizadas
 # Segredos (repositório ou GitHub Environments "producao"/"teste"):
 #   VPS_HOST, VPS_USER, VPS_SSH_KEY, [VPS_KNOWN_HOSTS], [SERVIDOR_ENV]
 name: deploy
@@ -8,13 +9,28 @@ name: deploy
 on:
   push:
     branches: [main, teste]
+    paths-ignore: ["**.md", "docs/**"]
   workflow_dispatch:
+    inputs:
+      ambiente:
+        description: "producao (main) ou teste (teste); vazio = conforme a branch escolhida"
+        required: false
+        default: ""
+  workflow_call:
+    inputs:
+      ambiente:
+        type: string
+        required: true
 
 permissions:
   contents: read
 
+# Ambiente-alvo: explícito (manutenção/manual) ou pela branch do push.
+env:
+  ALVO: ${{ inputs.ambiente || (github.ref_name == 'main' && 'producao' || 'teste') }}
+
 concurrency:
-  group: deploy-${{ github.ref_name }}
+  group: deploy-${{ inputs.ambiente || (github.ref_name == 'main' && 'producao' || 'teste') }}
   cancel-in-progress: false
 
 jobs:
@@ -23,6 +39,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.ALVO == 'producao' && 'main' || 'teste' }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -44,15 +62,17 @@ jobs:
     needs: testes
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment: ${{ github.ref_name == 'main' && 'producao' || 'teste' }}
+    environment: ${{ inputs.ambiente || (github.ref_name == 'main' && 'producao' || 'teste') }}
     env:
-      AMBIENTE: ${{ github.ref_name == 'main' && 'producao' || 'teste' }}
-      RAIZ: ${{ github.ref_name == 'main' && '/opt/gusto' || '/opt/gusto-teste' }}
-      URL_PUBLICA: ${{ github.ref_name == 'main' && 'https://gusto.m3d.pro' || 'https://gusto.m3d.pro/teste' }}
+      AMBIENTE: ${{ (inputs.ambiente || (github.ref_name == 'main' && 'producao' || 'teste')) }}
+      RAIZ: ${{ (inputs.ambiente || (github.ref_name == 'main' && 'producao' || 'teste')) == 'producao' && '/opt/gusto' || '/opt/gusto-teste' }}
+      URL_PUBLICA: ${{ (inputs.ambiente || (github.ref_name == 'main' && 'producao' || 'teste')) == 'producao' && 'https://gusto.m3d.pro' || 'https://gusto.m3d.pro/teste' }}
       VPS_HOST: ${{ secrets.VPS_HOST }}
       VPS_USER: ${{ secrets.VPS_USER || 'root' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.ALVO == 'producao' && 'main' || 'teste' }}
 
       - name: Conferir segredos
         id: seg

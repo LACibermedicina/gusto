@@ -6,6 +6,19 @@ Fluxo: toda mudança entra pela branch `teste` (https://gusto.m3d.pro/teste/) e 
 ## [Não lançado]
 Próxima iteração (sugestão, ver `docs/ARQUITETURA.md` §8): ligar a interface base à API (login único), testes de integração com PostGIS no CI, TURN em produção.
 
+## [0.1.1-alpha] — 2026-11-18
+Automação das atualizações (GitHub → VPS e manutenção da própria VPS).
+
+### Adicionado
+- `deploy/automatizar-vps.sh` (rodar uma vez na VPS): chave SSH exclusiva de deploy e cadastro automático dos secrets (`VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, `VPS_KNOWN_HOSTS`) quando o `gh` está logado; atualizações automáticas de segurança do Ubuntu **sem reinício automático** e sem atualizar o Docker sozinho; timer semanal `gusto-manutencao` (limpeza do Docker, alerta de disco ≥ 85%, renovação de certificados, conferência dos backups, aviso de reinício pendente).
+- `.github/workflows/manutencao.yml`: todo domingo 04:17 (Brasília) reconstrói **teste** com as imagens base atualizadas e, só se ela passar na saúde, **produção**.
+- `.github/dependabot.yml`: PRs semanais de dependências npm, imagem Docker e Actions, sempre contra a branch `teste`.
+- `make automatizar-vps` e `make manutencao`.
+
+### Alterado
+- `deploy.yml` reutilizável (`workflow_call`) e com escolha manual do ambiente; não roda para mudanças só em `*.md`/`docs/`.
+- `remote-deploy.sh` também atualiza as imagens do PostGIS (`db`, `migrate`, `backup`) a cada publicação.
+
 ## [0.1.0-alpha] — 2026-11-18
 Primeira iteração sobre a app base **Gusto 1.0** (pacote `gusto-pacote-completo`), aplicando o padrão de prompt M3D (Regra de Arte).
 

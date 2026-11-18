@@ -2,7 +2,7 @@
 
 Plataforma para trocar receitas, pedir preparo, alugar espaços e itens e entregar com rastreio por código — agora com a **camada Gusto OS**: janelas estilo macOS, ícones 3D, tradução por IA em 5 idiomas, grafo de funcionalidades, notas da agenda, comunidade com vídeo e um mascote 3D assistente.
 
-**Versão:** `0.1.0-alpha` · [CHANGELOG](CHANGELOG.md) · [Arquitetura](docs/ARQUITETURA.md) · [LGPD](docs/LGPD.md) · Manuais da app base em [`docs/manuais/`](docs/manuais/)
+**Versão:** `0.1.1-alpha` · [CHANGELOG](CHANGELOG.md) · [Arquitetura](docs/ARQUITETURA.md) · [LGPD](docs/LGPD.md) · Manuais da app base em [`docs/manuais/`](docs/manuais/)
 
 | Ambiente | Branch | Endereço | Na VPS |
 |---|---|---|---|
@@ -25,6 +25,17 @@ test/                testes unitários (node --test)
 2. **VPS:** `make setup-vps VPS=root@SEU_IP EMAIL=seu@email` (ou copie `deploy/` e rode `sudo bash setup-vps.sh --dominio gusto.m3d.pro --email ...`). Anote a senha inicial do root impressa no final.
 3. **GitHub → Settings → Secrets → Actions:** `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` (opcional `VPS_KNOWN_HOSTS`) e, se quiser IA, `SERVIDOR_ENV` com linhas `VAR=valor` (ver `.env.example`).
 4. `git push origin teste` → abre em `/teste/`. Testou? Rode **promover**.
+
+## O que é automático
+| Quando | O quê |
+|---|---|
+| push em `teste` / `main` | testes → publicação em `/teste/` / produção, com rollback se `/health` falhar |
+| domingo 04:17 | rebuild semanal com imagens base atualizadas (teste → produção) |
+| segunda 06:00 | Dependabot abre PRs de dependências contra `teste` |
+| diário | backup do banco (14 dias) e atualizações de segurança do Ubuntu |
+| domingo 06:30 | manutenção da VPS: limpeza do Docker, disco, certificados, backups (`journalctl -t gusto-manutencao`) |
+
+O que continua manual, de propósito: promover `teste → main` e reiniciar a VPS quando uma atualização pedir.
 
 ## Desenvolvimento local
 ```bash

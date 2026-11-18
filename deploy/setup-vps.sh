@@ -123,14 +123,16 @@ ln -sf "$SITE" "/etc/nginx/sites-enabled/$DOMINIO.conf"
 nginx -t && systemctl reload nginx
 systemctl list-timers --all 2>/dev/null | grep certbot >/dev/null || aviso "timer de renovação do certbot não encontrado; confira 'systemctl list-timers'."
 
+# ---------- automação (chave de deploy, atualizações de segurança, manutenção semanal) ----------
+if [[ -f "$HERE/automatizar-vps.sh" ]]; then bash "$HERE/automatizar-vps.sh"; fi
+
 log "VPS pronta."
 cat <<EOF
 
   Produção:     https://$DOMINIO           → 127.0.0.1:$PORTA_PROD   (/opt/gusto, branch main)
   Homologação:  https://$DOMINIO/teste/    → 127.0.0.1:$PORTA_TESTE  (/opt/gusto-teste, branch teste)
 
-  Próximos passos no GitHub (Settings → Secrets and variables → Actions):
-    VPS_HOST, VPS_USER (ex.: root), VPS_SSH_KEY (chave privada de deploy), opcional VPS_KNOWN_HOSTS
-    SERVIDOR_ENV (opcional): chaves de IA/PSP/LGPD, uma VAR=valor por linha (ver .env.example)
+  Secrets do GitHub: veja acima (cadastrados sozinhos se o gh estiver logado nesta VPS).
+  Opcional: SERVIDOR_ENV com chaves de IA/PSP/LGPD, uma VAR=valor por linha (ver .env.example).
   Depois: git push origin teste   → publica em /teste/
 EOF

@@ -3,7 +3,7 @@ SHELL := /bin/bash
 ENV ?= .env
 DC := docker compose --env-file $(ENV)
 
-.PHONY: ajuda env up down logs ps test migrar backup teste promover setup-vps
+.PHONY: ajuda env up down logs ps test migrar backup teste promover setup-vps automatizar-vps manutencao
 ajuda:          ## lista os comandos
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | sed -E 's/:.*## /\t/'
 env:            ## cria .env local a partir do exemplo
@@ -28,3 +28,7 @@ promover:       ## promove teste → main (produção) pelo GitHub Actions
 	gh workflow run promover.yml -f confirmacao=PROMOVER
 setup-vps:      ## prepara a VPS: make setup-vps VPS=root@159.223.22.82 EMAIL=voce@x
 	scp -r deploy $(VPS):/tmp/gusto-deploy && ssh -t $(VPS) "sudo bash /tmp/gusto-deploy/setup-vps.sh --dominio gusto.m3d.pro --email $(EMAIL)"
+automatizar-vps: ## chave de deploy + secrets, atualizações de segurança e manutenção semanal: make automatizar-vps VPS=root@IP
+	scp deploy/automatizar-vps.sh $(VPS):/tmp/ && ssh -t $(VPS) "sudo bash /tmp/automatizar-vps.sh"
+manutencao:     ## roda agora a manutenção semanal (rebuild teste → produção) pelo GitHub Actions
+	gh workflow run manutencao.yml

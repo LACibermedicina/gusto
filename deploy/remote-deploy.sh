@@ -21,7 +21,8 @@ DC=(docker compose --env-file "$RAIZ/.env" -p "$COMPOSE_PROJECT_NAME")
 IMG="${APP_IMAGE}:latest"; ANT="${APP_IMAGE}:previous"
 
 if docker image inspect "$IMG" >/dev/null 2>&1; then docker image tag "$IMG" "$ANT"; log "imagem anterior guardada como $ANT"; fi
-log "build da imagem"
+log "atualizando imagens base (PostGIS) e build da app"
+"${DC[@]}" pull --quiet db migrate backup || log "aviso: não foi possível atualizar as imagens do banco; seguindo com as atuais"
 "${DC[@]}" build --pull app
 log "subindo serviços (migrações rodam antes da app)"
 if ! "${DC[@]}" up -d --remove-orphans; then
