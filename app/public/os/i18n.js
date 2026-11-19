@@ -37,7 +37,7 @@ export function t(chave, vars = {}) {
 }
 
 async function carregar(cod) {
-  const r = await fetch(url(`/os/i18n/${cod}.json`), { cache: "force-cache" });
+  const r = await fetch(url(`/os/i18n/${cod}.json`), { cache: "no-cache" });
   if (!r.ok) throw new Error("dicionário " + cod);
   return r.json();
 }

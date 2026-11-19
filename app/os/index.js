@@ -91,6 +91,8 @@ export function montarOS(app, ctx) {
   // ---- interface: index com a camada OS ----
   const servirIndex = (req, res) => { res.setHeader("Cache-Control", "no-cache"); res.type("html").send(indexOS); };
   app.get(["/", "/index.html"], servirIndex);
+  // Camada OS: revalida sempre (ETag) para que um deploy nunca sirva dicionário/módulo antigo do cache.
+  app.use("/os", (req, res, next) => { if (!req.path.startsWith("/vendor/")) res.setHeader("Cache-Control", "no-cache"); next(); });
   app.get("/os/vendor/three.module.min.js", (req, res) =>
     res.sendFile(path.join(path.dirname(require.resolve("three")), "three.module.min.js"), { maxAge: "7d", headers: { "Content-Type": "text/javascript" } }));
 

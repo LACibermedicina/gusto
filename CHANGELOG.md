@@ -6,6 +6,10 @@ Fluxo: toda mudança entra pela branch `teste` (https://gusto.m3d.pro/teste/) e 
 ## [Não lançado]
 Próxima iteração (sugestão, ver `docs/ARQUITETURA.md` §8): ligar a interface base à API (login único), testes de integração com PostGIS no CI, TURN em produção.
 
+## [0.7.1-alpha] — 2026-11-19
+### Corrigido
+- Depois de um deploy, o navegador podia continuar usando dicionários de idioma antigos do cache e mostrar chaves cruas (ex.: "pub.titulo"). Os arquivos da camada OS (`/os/*`) agora são sempre revalidados (`Cache-Control: no-cache` + ETag), e os dicionários são buscados com `cache: "no-cache"`.
+
 ## [0.7.0-alpha] — 2026-11-19
 ### Alterado
 - **Antes do login:** removidos o fundo, o radar e a caixa central de login. Fica só uma barra superior discreta (logo, bandeiras de idioma, usuário, senha e "Entrar") e, abaixo, os cards de receitas públicas.
