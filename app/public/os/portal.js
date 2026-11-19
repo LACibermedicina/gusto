@@ -1,6 +1,7 @@
 // GUSTO · portal público (antes do login): fichas de receitas em estilo portal de notícias · by m3d.pro
 import { api, h, on } from "./api.js";
 import { t } from "./i18n.js";
+import { mostrarStories, ligarVideos } from "./videos.js";
 import { renderFicha, ligarFicha, localizar, nivel } from "./infografico.js";
 import { iconeCozinha as ic } from "./icones-cozinha.js";
 import { cenaSVG } from "./cena.js";
@@ -35,6 +36,7 @@ async function abrirFicha(slug) {
     const caixa = m.querySelector(".ig-modal-caixa");
     caixa.innerHTML = `<button class="ig-fechar" aria-label="${h(t("pub.fechar"))}">×</button>${renderFicha(d)}`;
     ligarFicha(caixa);
+    ligarVideos(caixa, slug);
     m.querySelector(".ig-fechar").focus();
   } catch (e) { m.querySelector(".ig-modal-caixa p").textContent = e.message; }
 }
@@ -63,7 +65,9 @@ function desenharCartoes(lista) {
   const [hero, ...resto] = cartoes.some(c => c.destaque) ? [cartoes.find(c => c.destaque), ...cartoes.filter(c => !c.destaque)] : cartoes;
   raiz.innerHTML = `<header class="pt-cabeca"><span class="pt-selo">${t("pub.selo")}</span><h2>${t("pub.titulo")}</h2>
       <p>${t("pub.sub")}</p></header>
+    <section class="pt-stories" hidden></section>
     <div class="pt-grade">${cartao(hero, true)}${resto.map(c => cartao(c)).join("")}</div>`;
+  mostrarStories(raiz.querySelector(".pt-stories"));
 }
 
 // Troca de idioma: redesenha os cards e a ficha aberta.

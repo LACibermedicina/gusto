@@ -11,6 +11,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --chown=node:node package.json server.js ./
 COPY --chown=node:node os ./os
 COPY --chown=node:node public ./public
+RUN mkdir -p /dados/videos && chown -R node:node /dados
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=15s --timeout=4s --start-period=20s --retries=3 \

@@ -553,3 +553,84 @@ body.os-deslogado #os-portal { margin-top: 10px; }
   .os-pub-acesso .os-ac-sep, .os-pub-acesso .os-ac-abrir[data-aba="criar"] { display: none; }
   .os-ac-painel { position: fixed; top: 56px; width: calc(100vw - 20px); }
 }
+
+/* ===== v0.9 · vídeos dos pratos: stories, reels, lives/tutoriais ===== */
+.pt-stories { margin: 4px 0 18px; } .pt-stories[hidden] { display: none; }
+.vd-rot { margin: 0 0 8px; font: 700 11px var(--os-fonte); letter-spacing: .08em; text-transform: uppercase; color: #9a3412; }
+.vd-stories { display: flex; gap: 14px; overflow-x: auto; padding: 2px 2px 6px; scrollbar-width: thin; }
+.vd-story { all: unset; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; flex: none; }
+.vd-anel { width: 64px; height: 64px; border-radius: 50%; padding: 3px; background: conic-gradient(#f59f00, #e8590c, #c2255c, #f59f00); display: grid; place-items: center; }
+.vd-anel > * { width: 58px; height: 58px; box-sizing: border-box; border-radius: 50%; object-fit: cover; border: 2px solid #fffaf5; background: #2b2118; }
+.vd-anel .vd-plat { display: grid; place-items: center; font-size: 9px; }
+.vd-story small { font: 12px var(--os-fonte); color: #4a3a2c; max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vd-story:focus-visible .vd-anel { outline: 2px solid #e8590c; outline-offset: 2px; }
+
+.vd-sec { margin: 14px 0; }
+.vd-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.vd-cab h3 { margin: 0; font: 700 12px var(--os-fonte); letter-spacing: .07em; text-transform: uppercase; color: #5c1f2e; }
+.vd-add { border: 1px solid rgba(232,89,12,.35); background: #fff; color: #c2410c; border-radius: 999px; padding: 4px 12px; font: 600 12px var(--os-fonte); cursor: pointer; }
+.vd-add:hover { background: #e8590c; color: #fff; }
+.vd-entre { font-size: 12px; color: #9a8877; }
+.vd-vazio { margin: 0; font-size: 13px; color: #9a8877; }
+.vd-nota { margin: 8px 0 0; font-size: 12.5px; color: #2b8a3e; }
+.vd-reels-faixa { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; }
+.vd-reel { position: relative; flex: none; width: 96px; aspect-ratio: 9/16; border: 0; padding: 0; border-radius: 12px; overflow: hidden; background: #2b2118; cursor: pointer; }
+.vd-reel video, .vd-tut video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+.vd-reel .vd-plat { position: absolute; inset: 0; display: grid; place-items: center; }
+.vd-tag { position: absolute; left: 6px; top: 6px; padding: 2px 6px; border-radius: 6px; background: rgba(0,0,0,.55); color: #fff; font: 600 10.5px var(--os-fonte); }
+.vd-leg { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 6px 6px; background: linear-gradient(transparent, rgba(0,0,0,.7)); color: #fff; font: 11px/1.25 var(--os-fonte); text-align: left; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.vd-plat { color: #fff; font: 700 11px var(--os-fonte); background: #2b2118; }
+.vd-plat-youtube { background: #c4302b; } .vd-plat-vimeo { background: #1ab7ea; } .vd-plat-instagram { background: linear-gradient(45deg,#f58529,#dd2a7b,#8134af); }
+.vd-plat-tiktok { background: #111; } .vd-plat-x { background: #000; } .vd-plat-twitch { background: #6441a5; } .vd-plat-facebook { background: #1877f2; }
+.vd-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.vd-tut { all: unset; box-sizing: border-box; width: 100%; display: flex; gap: 10px; align-items: center; padding: 6px; border-radius: 10px; border: 1px solid rgba(120,80,40,.12); background: #fff; cursor: pointer; }
+.vd-tut:hover { box-shadow: 0 4px 14px rgba(43,33,24,.1); }
+.vd-tut > video, .vd-tut > .vd-plat { width: 112px; aspect-ratio: 16/9; border-radius: 7px; flex: none; display: grid; place-items: center; }
+.vd-tut b { display: block; font: 600 13.5px var(--os-fonte); color: #2b2118; } .vd-tut small { font-size: 12px; color: #7a6a5a; }
+
+.vd-player { position: fixed; inset: 0; z-index: 20000; background: rgba(10,8,6,.86); display: grid; place-items: center; font-family: var(--os-fonte); }
+.vd-palco { position: relative; height: min(92vh, 860px); aspect-ratio: 9/16; max-width: 96vw; border-radius: 16px; overflow: hidden; background: #000; }
+.vd-h .vd-palco { height: auto; width: min(92vw, 1100px); aspect-ratio: auto; }
+.vd-h .vd-midia { height: auto; aspect-ratio: 16/9; max-height: 78vh; }
+.vd-midia, .vd-midia video, .vd-midia iframe { width: 100%; height: 100%; border: 0; display: block; object-fit: contain; background: #000; }
+.vd-externo { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #fff; text-decoration: none; }
+.vd-externo .vd-plat { padding: 8px 14px; border-radius: 10px; font-size: 15px; } .vd-externo small { opacity: .7; }
+.vd-info { position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 14px 14px; background: linear-gradient(transparent, rgba(0,0,0,.75)); color: #fff; font-size: 13px; pointer-events: none; }
+.vd-h .vd-info { position: static; background: #111; padding: 10px 14px; }
+.vd-info p { margin: 4px 0 0; } .vd-info a, .vd-info button { pointer-events: auto; }
+.vd-info a { color: #ffd8a8; font-size: 12px; margin-right: 10px; }
+.vd-apagar { margin-top: 6px; border: 1px solid rgba(255,255,255,.4); background: transparent; color: #fff; border-radius: 7px; padding: 3px 9px; font-size: 12px; cursor: pointer; }
+.vd-fechar, .vd-ant, .vd-prox { position: absolute; border: 0; background: rgba(0,0,0,.45); color: #fff; border-radius: 50%; width: 36px; height: 36px; font-size: 22px; cursor: pointer; }
+.vd-fechar { top: 14px; right: 10px; } .vd-ant { left: 8px; top: 50%; } .vd-prox { right: 8px; top: 50%; }
+.vd-barras { position: absolute; top: 6px; left: 8px; right: 8px; display: flex; gap: 4px; z-index: 2; }
+.vd-barras i { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,.35); overflow: hidden; }
+.vd-barras b { display: block; height: 100%; width: 0; background: #fff; } .vd-barras .vd-ok b { width: 100%; }
+
+.vd-envio-fundo { position: fixed; inset: 0; z-index: 20000; background: rgba(43,33,24,.45); display: grid; place-items: center; padding: 12px; font-family: var(--os-fonte); }
+.vd-envio { width: min(440px, 100%); max-height: 92vh; overflow: auto; background: #fffcf8; border-radius: 16px; padding: 18px; box-shadow: 0 20px 60px rgba(0,0,0,.25); display: flex; flex-direction: column; gap: 10px; color: #2b2118; }
+.vd-envio h3 { margin: 0; font: 800 17px var(--os-fonte); }
+.vd-modos { display: flex; gap: 4px; padding: 3px; border-radius: 10px; background: rgba(43,33,24,.06); }
+.vd-modos button { flex: 1; border: 0; background: transparent; padding: 7px 4px; border-radius: 8px; font: 600 12.5px var(--os-fonte); color: #6b5a4a; cursor: pointer; }
+.vd-modos button[aria-selected="true"] { background: #fff; color: #2b2118; box-shadow: 0 1px 3px rgba(43,33,24,.12); }
+.vd-modo[hidden], .vd-previa[hidden], .vd-prog[hidden] { display: none; }
+.vd-modo small, .vd-regra { font-size: 12px; color: #7a6a5a; margin: 0; }
+.vd-regra.vd-destaque { color: #c2410c; font-weight: 600; }
+.vd-arquivo { display: block; border: 1.5px dashed rgba(232,89,12,.45); border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; font-size: 13px; color: #9a3412; }
+.vd-arquivo input { display: block; margin: 0 auto 6px; max-width: 100%; }
+.vd-camera { position: relative; aspect-ratio: 9/16; max-height: 46vh; margin: 0 auto; border-radius: 12px; overflow: hidden; background: #111; }
+.vd-camera video { width: 100%; height: 100%; object-fit: cover; }
+.vd-cron { position: absolute; top: 8px; left: 8px; color: #ff6b6b; font: 700 13px var(--os-fonte); text-shadow: 0 1px 2px #000; }
+.vd-gravar-bts { display: flex; gap: 6px; justify-content: center; margin: 8px 0 4px; }
+.vd-gravar-bts button, .vd-acoes button { border: 1px solid rgba(120,80,40,.2); background: #fff; border-radius: 9px; padding: 7px 12px; font: 600 13px var(--os-fonte); cursor: pointer; }
+.vd-rec { color: #c92a2a; } .vd-rec:disabled { opacity: .5; }
+.vd-previa video { width: 100%; max-height: 40vh; border-radius: 10px; background: #000; } .vd-previa small { font-size: 12px; color: #7a6a5a; }
+.vd-envio input[type=url], .vd-envio input[name=legenda] { width: 100%; box-sizing: border-box; height: 36px; padding: 0 10px; border: 1px solid rgba(120,80,40,.2); border-radius: 9px; font: 13px var(--os-fonte); }
+.vd-tipos { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 13px; }
+.vd-tipos legend { font: 700 11px var(--os-fonte); text-transform: uppercase; letter-spacing: .06em; color: #9a3412; margin-bottom: 4px; }
+.vd-tipos label:has(input:disabled) { opacity: .4; }
+.vd-aceite { display: flex; gap: 7px; font-size: 12.5px; align-items: flex-start; } .vd-aceite input { margin-top: 2px; accent-color: #e8590c; }
+.vd-prog { height: 6px; border-radius: 3px; background: rgba(43,33,24,.1); overflow: hidden; } .vd-prog b { display: block; height: 100%; width: 0; background: #e8590c; transition: width .2s; }
+.vd-erro { margin: 0; font-size: 12.5px; color: #c92a2a; } .vd-erro:empty { display: none; }
+.vd-acoes { display: flex; justify-content: flex-end; gap: 8px; }
+.vd-acoes .vd-enviar { background: #2b2118; color: #fff; border-color: #2b2118; } .vd-acoes .vd-enviar:disabled { opacity: .6; }
+@media (prefers-reduced-motion: reduce) { .vd-prog b { transition: none; } }

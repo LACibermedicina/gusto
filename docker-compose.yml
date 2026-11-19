@@ -53,6 +53,7 @@ services:
     read_only: true
     tmpfs: ["/tmp"]
     cap_drop: [ALL]
+    volumes: [videos:/dados/videos]   # vídeos dos pratos (fora do backup diário do banco)
     ports: ["127.0.0.1:${PORTA:-3301}:3000"]
     networks: [interna, saida]
     # Lista explícita (nada de env_file): a app não recebe a senha de superusuário do banco.
@@ -76,6 +77,9 @@ services:
       IA_ANTHROPIC_MODELO: ${IA_ANTHROPIC_MODELO:-}
       IA_OPENAI_MODELO: ${IA_OPENAI_MODELO:-}
       IA_OPENAI_URL: ${IA_OPENAI_URL:-}
+      VIDEOS_DIR: /dados/videos
+      VIDEO_MAX_MB: ${VIDEO_MAX_MB:-100}
+      VIDEO_COTA_MB: ${VIDEO_COTA_MB:-600}
       REGISTRO_ABERTO: ${REGISTRO_ABERTO:-1}
       OAUTH_GOOGLE_ID: ${OAUTH_GOOGLE_ID:-}
       OAUTH_GOOGLE_SECRET: ${OAUTH_GOOGLE_SECRET:-}
@@ -120,6 +124,7 @@ services:
 
 volumes:
   db:
+  videos:
 
 networks:
   interna: { internal: true }

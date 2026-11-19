@@ -1,6 +1,7 @@
 // GUSTO · camada OS v0.1.0-alpha · rotas /os-api, injeção da interface e WebSocket · by m3d.pro
 // A interface base (public/index.html) não é alterada: o servidor injeta a camada OS ao servir "/".
 import { montarContas } from "./contas.js";
+import { montarVideos } from "./videos.js";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
@@ -23,7 +24,7 @@ export const PERMISSIONS_POLICY = "geolocation=(self), camera=(self), microphone
 
 // CSP: WebSocket do próprio host (explícito para navegadores sem CSP3 em connect-src 'self').
 const host = (() => { try { return new URL(process.env.PUBLIC_URL || "").host; } catch { return ""; } })();
-export const cspOS = { connectSrc: host ? [`wss://${host}`] : [] };
+export const cspOS = { connectSrc: host ? [`wss://${host}`] : [], frameSrc: ["https://www.youtube-nocookie.com", "https://player.vimeo.com"] };
 
 /** Insere a camada OS no index.html base. Exportada para teste. */
 export function injetar(html, { base = "", ambiente = "producao", versao = VERSAO } = {}) {
@@ -91,6 +92,8 @@ export function montarOS(app, ctx) {
 
   // ---- cadastro aberto e entrada com Google, X, Apple ou Microsoft ----
   montarContas(app, { ...ctx, talvez });
+  // ---- vídeos dos pratos (reels, stories, lives/tutoriais) ----
+  montarVideos(app, { ...ctx, talvez, feat });
 
   // ---- interface: index com a camada OS ----
   const servirIndex = (req, res) => { res.setHeader("Cache-Control", "no-cache"); res.type("html").send(indexOS); };

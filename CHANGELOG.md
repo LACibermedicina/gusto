@@ -6,6 +6,29 @@ Fluxo: toda mudança entra pela branch `teste` (https://gusto.m3d.pro/teste/) e 
 ## [Não lançado]
 Próxima iteração (sugestão, ver `docs/ARQUITETURA.md` §8): ligar a interface base à API (login único), testes de integração com PostGIS no CI, TURN em produção.
 
+## [0.9.0-alpha] — 2026-11-19
+### Adicionado
+- **Vídeos dos pratos**, ligados a cada receita pública:
+  - **Reels** (até 90 s) numa faixa vertical na apresentação da receita;
+  - **Stories** (24 h) em bolinhas no topo da página inicial, com avanço automático;
+  - **Lives e tutoriais** como referências extras em "Detalhes avançados".
+- Três formas de publicar (só logado, funcionalidade `os_videos` no RBAC):
+  - **arquivo** MP4, MOV ou WebM, até 100 MB;
+  - **gravar agora** pela câmera (traseira por padrão, até 90 s, com áudio);
+  - **link externo**: YouTube e Vimeo tocam no próprio Gusto (player sem cookies de rastreio); Instagram, TikTok, X, Twitch e outros abrem no site de origem; Shorts e Reels viram reel, `/live` e Twitch viram live.
+- **Regra de duração:** vídeo acima de 90 s vira automaticamente live/tutorial (mesmo que tenha sido pedido como reel/story). Acima de 10 min, só como link.
+- **Segurança:**
+  - formato decidido pelos bytes do arquivo, e a duração dos MP4 é lida do próprio arquivo;
+  - envio em partes de 768 KB, que dispensa mudar o Nginx;
+  - cabeçalho próprio contra CSRF;
+  - cota de 600 MB por usuário e reserva mínima de disco;
+  - limite de 30 envios por hora;
+  - Range para tocar e avançar;
+  - o autor ou o root apagam (moderação).
+- Envios abandonados são apagados em 2 h, e stories vencidos em 24 h.
+- LGPD: os vídeos entram na exportação e são apagados com a conta.
+- Volume Docker `videos` (fora do backup diário do banco). Migração `009_videos.sql`. Variáveis `VIDEO_MAX_MB` e `VIDEO_COTA_MB`.
+
 ## [0.8.0-alpha] — 2026-11-19
 ### Adicionado
 - **Cadastro aberto:** quem ainda não tem conta cria uma no menu de acesso (nome, usuário com checagem de disponibilidade, senha de 8+ caracteres, aceite LGPD). A conta nova recebe o papel cliente e já entra logada. `REGISTRO_ABERTO=0` fecha o cadastro.

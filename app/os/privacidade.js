@@ -1,4 +1,5 @@
 // GUSTO · camada OS · LGPD: mascaramento, consentimentos, portabilidade e eliminação · by m3d.pro
+import { apagarArquivosDoUsuario } from "./videos.js";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 
@@ -65,6 +66,7 @@ const EXPORT = {
   grafos: "select name,data,updated_at from os_graphs where owner_id=$1",
   mensagens: "select r.slug sala,m.body,m.at from chat_messages m join chat_rooms r on r.id=m.room_id where m.author_id=$1 order by m.at",
   gamificacao: "select xp,muted,updated_at from os_xp where user_id=$1",
+  videos: "select id,slug,tipo,origem,legenda,url_externa,duracao_s,vistas,criado,publicado from os_videos where autor=$1",
   contas_vinculadas: "select provedor,email,criado,ultimo_uso from os_identidades where user_id=$1",
   auditoria: "select action,entity,entity_id,at from audit_log where actor=$1 order by at desc limit 500"
 };
@@ -90,6 +92,7 @@ export async function eliminar({ tx, q }, uid, senha) {
   // Conta criada com Google/X/Apple/Microsoft não tem senha conhecida: confirma digitando o nome de usuário.
   const ok = u.senha_local ? await bcrypt.compare(String(senha || ""), u.password_hash) : String(senha || "").trim().toLowerCase() === u.username;
   if (!ok) throw Object.assign(new Error("Senha incorreta"), { s: 401 });
+  await apagarArquivosDoUsuario(q, uid);
   const apelido = "removido-" + crypto.randomBytes(4).toString("hex");
   await tx(async c => {
     for (const sql of [
@@ -98,6 +101,7 @@ export async function eliminar({ tx, q }, uid, senha) {
       "delete from chat_messages where author_id=$1",
       "delete from os_xp where user_id=$1",
       "delete from os_identidades where user_id=$1",
+      "delete from os_videos where autor=$1",
       "delete from lgpd_consents where user_id=$1",
       "delete from profiles where user_id=$1",
       "delete from user_feature_overrides where user_id=$1",
