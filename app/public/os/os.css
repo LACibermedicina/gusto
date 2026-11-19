@@ -111,7 +111,8 @@ html.hc { --os-bg: #fff; --os-borda: #000; --os-mu: #222; }
 .os-btn.os-off { opacity: .5; text-decoration: line-through; }
 .os-btn:focus-visible, .os-bloco:focus-visible { outline: 3px solid var(--os-laranja); outline-offset: 2px; }
 .os-form { display: flex; flex-direction: column; gap: 10px; }
-.os-form label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 500; }
+.os-form label { display: flex; flex-direction: column; align-items: stretch; gap: 4px; font-size: 13px; font-weight: 500; }
+.os-form label input, .os-form > input, .os-perigo form input { width: 100%; }
 .os-janela input, .os-janela textarea, .os-janela select, .os-modal input { font: 14px var(--os-fonte); padding: 8px 10px; border: 1px solid var(--os-borda); border-radius: 9px; background: #fff; color: var(--os-texto); }
 .os-mu { color: var(--os-mu); } .os-peq { font-size: 12px; } .os-grande { font-size: 18px; }
 .os-erro { color: #c92a2a; font-size: 13px; min-height: 1em; margin: 0; }

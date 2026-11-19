@@ -78,8 +78,14 @@ export function montarOS(app, ctx) {
   const feat = f => ah(async (req, res, next) => { if (!(await can(req.u.id, f))) throw new E(403, "Funcionalidade não autorizada"); next(); });
   const ganharXP = (uid, n) => q("insert into os_xp(user_id,xp) values($1,$2) on conflict(user_id) do update set xp=os_xp.xp+$2,updated_at=now()", [uid, n]).catch(() => {});
 
-  // Sessão opcional (para rotas públicas que se comportam diferente com login).
-  const talvez = (req, res, next) => (ctx.CKRE.test(req.headers.cookie || "") ? A(req, res, e => { if (e) req.u = null; next(); }) : next());
+  // Sessão opcional (rotas públicas). Ao contrário de A, aceita quem ainda precisa trocar a senha inicial,
+  // para a interface saber que deve abrir a troca de senha.
+  const talvez = ah(async (req, res, next) => {
+    const m = ctx.CKRE.exec(req.headers.cookie || "");
+    req.u = m ? one(await q(`select u.id,u.username,u.display_name,u.is_root,u.must_change_password,array(select role::text from user_roles where user_id=u.id) roles
+      from sessions s join users u on u.id=s.user_id where s.token_hash=$1 and not s.revoked and s.expires_at>now() and u.is_active`, [ctx.sha(m[1])])) || null : null;
+    next();
+  });
 
   // ---- interface: index com a camada OS ----
   const servirIndex = (req, res) => { res.setHeader("Cache-Control", "no-cache"); res.type("html").send(indexOS); };

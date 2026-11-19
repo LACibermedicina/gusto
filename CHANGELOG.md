@@ -6,6 +6,12 @@ Fluxo: toda mudança entra pela branch `teste` (https://gusto.m3d.pro/teste/) e 
 ## [Não lançado]
 Próxima iteração (sugestão, ver `docs/ARQUITETURA.md` §8): ligar a interface base à API (login único), testes de integração com PostGIS no CI, TURN em produção.
 
+## [0.1.3-alpha] — 2026-11-18
+### Corrigido
+- **Login único (ponte):** a tela "Entrar no Gusto" da interface base agora aceita a conta do servidor. O root da base tinha uma senha embutida desconhecida; com a ponte, `root` + `GUSTO_ROOT_PASSWORD` entra na interface base e no Gusto OS ao mesmo tempo, e a janela **Conta** abre pedindo a troca da senha inicial.
+- `/os-api/info` reconhece a sessão de quem ainda precisa trocar a senha (antes aparecia como deslogado).
+- Formulários das janelas: campos com largura total e alinhamento correto sob o CSS da base.
+
 ## [0.1.2-alpha] — 2026-11-18
 ### Corrigido
 - `setup-vps.sh` desativa o site Nginx da instalação antiga sem Docker (`gusto-<domínio>.conf`), que disputava o mesmo `server_name`, e avisa se o serviço `gusto` antigo ainda estiver rodando.

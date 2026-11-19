@@ -11,6 +11,7 @@ import { comunidade } from "./mods/comunidade.js";
 import { privacidade } from "./mods/privacidade.js";
 import { sobre } from "./mods/sobre.js";
 import { iniciarAvatar, alternarAvatar } from "./mods/avatar.js";
+import { instalarPonteLogin } from "./ponte.js";
 
 // Registro de módulos: id, fábrica da janela e funcionalidade exigida (RBAC por usuário no servidor).
 const MODULOS = [
@@ -164,6 +165,8 @@ async function iniciar() {
   marcarIdioma(preferido);
   await recarregarSessao();
   atualizarCadeados();
+  // "Entrar no Gusto" (interface base) também aceita a conta do servidor.
+  instalarPonteLogin(async r => { await recarregarSessao(); if (r?.must_change_password) abrirModulo("conta"); });
 
   on("wm:mudou", atualizarAbertas);
   on("i18n:idioma", () => { atualizarAbertas(); marcarIdioma(idiomaAtual()); remontarTodas(["conta"]); }); // datas/rótulos com locale do novo idioma
