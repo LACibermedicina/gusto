@@ -458,8 +458,9 @@ body.mm #os-portal { display: none; }
 /* ======================= Radar de fundo (v0.6) ======================= */
 body:not(.mm) #bg { display: none !important; }            /* mapa antigo só no modo Mapa */
 body.mm #os-radar { display: none; }
-#os-radar { position: absolute; top: 0; left: 0; right: 0; height: 420px; z-index: 0; pointer-events: none; overflow: hidden; font-family: var(--os-fonte); }
-body.os-logado #os-radar { display: none; }
+#os-radar { position: fixed; inset: 0; z-index: 8; pointer-events: none; overflow: hidden; font-family: var(--os-fonte); }
+body.os-deslogado #os-radar { display: none !important; }
+body.os-radar-on #os-portal { opacity: .1; pointer-events: none; transition: opacity .3s; }
 .rd-disco { position: absolute; overflow: hidden; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(255,240,225,.0) 30%, rgba(232,89,12,.035) 100%); }
 .rd-varredura { left: 0; }
 .rd-svg { position: absolute; inset: 0; }
@@ -477,7 +478,7 @@ body.os-logado #os-radar { display: none; }
 .rd-orig:hover rect { opacity: 1; } .rd-orig:hover text { fill: #2b2118; font-weight: 700; }
 .rd-feita circle { fill: #e8590c; opacity: .45; } .rd-cons circle { fill: none; stroke: #2b8a3e; stroke-width: 2; opacity: .55; }
 .rd-pt:hover circle { opacity: 1; }
-.rd-legenda { position: absolute; left: 14px; top: 76px; z-index: 2; pointer-events: auto; max-width: 270px; padding: 10px 12px; border-radius: 12px; font-size: 12px; line-height: 1.45; color: #4a3f36;
+.rd-legenda { position: fixed; left: 14px; bottom: 104px; z-index: 9; pointer-events: auto; max-width: 270px; padding: 10px 12px; border-radius: 12px; font-size: 12px; line-height: 1.45; color: #4a3f36;
   background: rgba(255,250,244,.78); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(120,80,40,.14); box-shadow: 0 6px 18px -12px rgba(40,20,5,.4); opacity: .85; transition: opacity .2s; }
 .rd-legenda:hover { opacity: 1; }
 .rd-legenda b { color: #2b2118; } .rd-legenda ul { list-style: none; margin: 6px 0; padding: 0; } .rd-legenda li { display: flex; align-items: center; gap: 7px; }
@@ -491,6 +492,35 @@ body.os-logado #os-radar { display: none; }
 .rd-abre { display: none; width: 34px; height: 34px; border: 0; border-radius: 50%; background: transparent; color: #5c2333; font-size: 20px; cursor: pointer; padding: 0; }
 .rd-legenda.rd-fechada { padding: 2px; border-radius: 50%; } .rd-fechada .rd-corpo { display: none; } .rd-fechada .rd-abre { display: block; }
 @media (max-width: 1100px) { .rd-orig text { display: none; } }
-@media (max-width: 720px) { .rd-legenda { top: auto; bottom: 8px; max-width: 210px; font-size: 11px; } }
+@media (max-width: 720px) { .rd-legenda { bottom: 92px; max-width: 210px; font-size: 11px; } }
 @media (prefers-reduced-motion: reduce) { .rd-varredura, .rd-pulso { animation: none !important; } }
 .rd-guia { stroke: rgba(92,35,51,.25); stroke-width: 1; fill: none; }
+
+/* ======================= Antes do login: sem fundo, cabeçalho com login discreto (v0.7) ======================= */
+body.os-deslogado > header, body.os-deslogado #v, body.os-deslogado #bg { display: none !important; }
+body.os-deslogado { padding-top: 58px; background: #fffaf5; }
+.os-topo-pub { display: none; }
+body.os-deslogado .os-topo-pub { display: flex; align-items: center; gap: 12px; position: fixed; top: 0; left: 0; right: 0; z-index: 9500; height: 52px; padding: 0 16px;
+  background: rgba(255,250,245,.9); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid rgba(120,80,40,.1); font-family: var(--os-fonte); }
+.os-pub-logo { display: flex; align-items: center; gap: 8px; color: #2b2118; }
+.os-pub-logo svg { width: 30px; height: 30px; } .os-pub-logo b { font: 800 16px var(--os-fonte); } .os-pub-logo small { font-size: 11px; color: #c2410c; }
+.os-pub-esp { flex: 1; }
+.os-pub-idiomas .os-idiomas { position: static; opacity: .5; }
+.os-pub-login { position: relative; display: flex; align-items: center; gap: 6px; }
+.os-topo-pub .os-pub-login input, .os-topo-pub .os-pub-login input[type=password] { width: 128px !important; max-width: 128px; min-width: 0; height: 30px !important; margin: 0 !important; padding: 0 10px !important; box-sizing: border-box; box-shadow: none; border: 1px solid rgba(120,80,40,.18); border-radius: 8px; background: rgba(255,255,255,.7); font: 13px var(--os-fonte); color: #2b2118; }
+.os-pub-login input:focus { outline: 2px solid rgba(232,89,12,.4); background: #fff; }
+.os-topo-pub .os-pub-entrar { white-space: nowrap; flex: none; width: auto !important; margin: 0 !important; height: 30px; padding: 0 14px; border: 0; border-radius: 8px; background: #2b2118; color: #fff; font: 600 13px var(--os-fonte); cursor: pointer; }
+.os-pub-entrar:hover { background: #e8590c; } .os-pub-entrar:disabled { opacity: .6; }
+.os-pub-erro { position: absolute; right: 0; top: 36px; font-size: 12px; color: #c92a2a; white-space: nowrap; background: #fff; padding: 2px 8px; border-radius: 6px; }
+.os-pub-erro:empty { display: none; }
+body.os-deslogado #os-portal { margin-top: 10px; }
+.os-mb-radar { width: 28px; height: 26px; border: 0; border-radius: 7px; background: transparent; color: var(--os-mu); font-size: 17px; cursor: pointer; padding: 0; }
+.os-mb-radar:hover, .os-mb-radar.os-on { background: rgba(232,89,12,.14); color: #c2410c; }
+@media (max-width: 720px) {
+  .os-pub-logo small { display: none; }
+  .os-topo-pub .os-pub-login input { display: none; }
+  .os-pub-login.os-aberto { position: fixed; top: 52px; left: 0; right: 0; flex-wrap: wrap; padding: 10px 14px; background: #fffaf5; border-bottom: 1px solid rgba(120,80,40,.12); }
+  .os-topo-pub .os-pub-login.os-aberto input { display: block; width: auto !important; max-width: none; flex: 1 1 40%; height: 36px; }
+  .os-pub-login.os-aberto .os-pub-entrar { height: 36px; }
+  .os-pub-erro { top: auto; bottom: -24px; right: 14px; }
+}

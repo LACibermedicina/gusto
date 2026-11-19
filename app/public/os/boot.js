@@ -17,7 +17,7 @@ import { infograficos } from "./mods/infograficos.js";
 import { iniciarAvatar, alternarAvatar } from "./mods/avatar.js";
 import { instalarPonteLogin } from "./ponte.js";
 import { mostrarPortal, esconderPortal, abrirFicha } from "./portal.js";
-import { iniciarRadar } from "./radar.js";
+import { mostrarRadar, radarVisivel } from "./radar.js";
 import { iniciarDicas } from "./dicas.js";
 
 /* eslint-disable no-undef */ // S, ME, draw, gof… são globais do script da interface base
@@ -94,6 +94,17 @@ function montarChrome() {
   raiz.innerHTML = `
     <div id="os-janelas"></div>
     ${AMBIENTE === "teste" ? `<div class="os-selo" data-t="selo.teste"></div>` : ""}
+    <div class="os-topo-pub" role="banner">
+      <span class="os-pub-logo"></span>
+      <span class="os-pub-esp"></span>
+      <span class="os-pub-idiomas"></span>
+      <form class="os-pub-login" autocomplete="on">
+        <input name="u" autocomplete="username" maxlength="20" required data-t-ph="pub.usuario">
+        <input name="p" type="password" autocomplete="current-password" required data-t-ph="pub.senha">
+        <button class="os-pub-entrar" data-t="pub.entrar"></button>
+        <span class="os-pub-erro" role="alert"></span>
+      </form>
+    </div>
     <div class="os-idiomas" role="group" aria-label="Idioma">
       ${IDIOMAS.map(i => `<button class="os-bandeira" data-lang="${i.cod}" data-dica-titulo="${h(i.nome)}" data-dica-texto="${h(i.rotulo)}" aria-label="${h(i.nome)}" aria-pressed="false">${BANDEIRAS[i.cod]}</button>`).join("")}
       <span class="os-trad" aria-live="polite"></span>
@@ -101,10 +112,38 @@ function montarChrome() {
     <div class="os-menubar os-chrome" role="menubar" aria-label="Gusto OS">
       <button class="os-mb-logo" data-menu="gusto" aria-haspopup="true">${glifo("cozinha")}<b>Gusto</b></button>
       <div class="os-mb-grupos"></div>
-      <div class="os-mb-dir"><span class="os-mb-base"></span><time class="os-relogio os-notr"></time><span class="os-mb-user os-notr"></span></div>
+      <div class="os-mb-dir"><button class="os-mb-radar" aria-pressed="false" data-dica-chave="radar.botao" data-dica-titulo="Radar">◎</button><span class="os-mb-base"></span><time class="os-relogio os-notr"></time><span class="os-mb-user os-notr"></span></div>
     </div>
     <div class="os-menu-pop os-chrome" role="menu" hidden></div>`;
   document.body.appendChild(raiz);
+  // Logo da base no cabeçalho público.
+  const logo = document.querySelector("body > header svg");
+  raiz.querySelector(".os-pub-logo").innerHTML = (logo ? logo.outerHTML : "") + `<b>Gusto</b><small>by m3d.pro</small>`;
+  // Login compacto no cabeçalho: usa o login da base (com a ponte para a API e o bloqueio por tentativas).
+  const f = raiz.querySelector(".os-pub-login"), erro = f.querySelector(".os-pub-erro");
+  f.addEventListener("submit", async e => {
+    e.preventDefault(); erro.textContent = "";
+    if (matchMedia("(max-width: 720px)").matches && !f.classList.contains("os-aberto")) { f.classList.add("os-aberto"); f.u.focus(); return; }
+    /* eslint-disable no-undef */
+    try { if (!document.getElementById("lu")) login(); } catch { /* */ }
+    /* eslint-enable no-undef */
+    const lu = document.getElementById("lu"), lp = document.getElementById("lp");
+    if (!lu || !lp || typeof window.go_ !== "function") return;
+    lu.value = f.u.value; lp.value = f.p.value;
+    const bt = f.querySelector("button"); bt.disabled = true;
+    try { await window.go_(); } finally { bt.disabled = false; }
+    setTimeout(() => {
+      if (base.logada()) { f.reset(); f.classList.remove("os-aberto"); return; }
+      const msg = document.getElementById("le")?.textContent || "";
+      erro.textContent = /aguarde|tentativas/i.test(msg) ? t("pub.bloqueio") : t("pub.erro");
+    }, 150);
+  });
+  raiz.querySelector(".os-mb-radar").addEventListener("click", async e => {
+    const b = e.currentTarget, sim = !radarVisivel();
+    await mostrarRadar(sim, abrirFicha);
+    b.setAttribute("aria-pressed", String(sim)); b.classList.toggle("os-on", sim);
+    document.body.classList.toggle("os-radar-on", sim); pref.set("radarAtivo", sim);
+  });
   // As bandeiras ficam dentro da barra depois do login (posição muda por CSS).
   raiz.querySelectorAll("[data-lang]").forEach(b => b.addEventListener("click", () => escolherIdioma(b.dataset.lang)));
   raiz.querySelector(".os-mb-logo").addEventListener("click", e => alternarMenu("gusto", e.currentTarget));
@@ -253,13 +292,17 @@ function atualizarPortao() {
   document.body.classList.toggle("os-deslogado", !logado);
   document.body.classList.toggle("os-logado", logado);
   mostrarPortal(); // a mesa sempre mostra as fichas públicas; janelas ficam por cima
-  const idiomas = document.querySelector(".os-idiomas"), dir = document.querySelector(".os-mb-dir");
-  if (idiomas && dir) { if (logado && idiomas.parentNode !== dir) dir.insertBefore(idiomas, dir.firstChild); if (!logado && idiomas.parentNode === dir) document.getElementById("os-raiz").appendChild(idiomas); }
+  const idiomas = document.querySelector(".os-idiomas"), dir = document.querySelector(".os-mb-dir"), pub = document.querySelector(".os-pub-idiomas");
+  if (idiomas && dir && pub) { const alvo = logado ? dir : pub; if (idiomas.parentNode !== alvo) alvo.insertBefore(idiomas, alvo.firstChild); }
   if (logado) {
     moverControlesBase(); montarMenus(); decorarDock();
-    if (!jaEntrou) { jaEntrou = true; iniciarAvatar(ctx); boasVindas(); }
+    if (!jaEntrou) {
+      jaEntrou = true; iniciarAvatar(ctx); boasVindas();
+      if (pref.get("radarAtivo", false)) document.querySelector(".os-mb-radar")?.click();
+    }
   } else if (jaEntrou) {
     abertas().forEach(j => fechar(j.id)); fecharMenus(); jaEntrou = false; document.getElementById("os-avatar")?.remove();
+    if (radarVisivel()) { mostrarRadar(false); document.body.classList.remove("os-radar-on"); }
   }
 }
 function restaurarBase() {
@@ -292,7 +335,6 @@ function envolverBase() {
 
 async function iniciar() {
   document.body.classList.add("os-deslogado");
-  iniciarRadar(abrirFicha);
   mostrarPortal();
   montarChrome();
   iniciarWM();

@@ -1,36 +1,39 @@
 // GUSTO · portal público (antes do login): fichas de receitas em estilo portal de notícias · by m3d.pro
-import { api, h } from "./api.js";
-import { renderFicha, ligarFicha } from "./infografico.js";
+import { api, h, on } from "./api.js";
+import { t } from "./i18n.js";
+import { renderFicha, ligarFicha, localizar, nivel } from "./infografico.js";
 import { iconeCozinha as ic } from "./icones-cozinha.js";
 import { cenaSVG } from "./cena.js";
 
 let raiz = null, cartoes = null;
 
 function cartao(c, grande = false) {
-  return `<article class="pt-card${grande ? " pt-hero" : ""}" tabindex="0" role="link" data-slug="${h(c.slug)}" aria-label="Abrir receita: ${h(c.titulo)}">
+  c = localizar(c);
+  return `<article class="pt-card${grande ? " pt-hero" : ""}" tabindex="0" role="link" data-slug="${h(c.slug)}" aria-label="${h(t("pub.ver"))} ${h(c.titulo)}">
     <div class="pt-img">${cenaSVG(c.cena, `Ilustração: ${h(c.titulo)}`)}${c.tempo ? `<span class="pt-tempo">⏱ ${h(c.tempo)}</span>` : ""}</div>
-    <div class="pt-faixa"><h3>${h(c.titulo.toUpperCase())}</h3><small>| FICHA COGNITIVA DE EXECUÇÃO E TÉCNICA CLÁSSICA</small></div>
+    <div class="pt-faixa"><h3>${h(c.titulo.toUpperCase())}</h3><small>| ${h(t("ig.ficha"))}</small></div>
     <div class="pt-txt"><p class="pt-cat">${h(c.categoria)}</p><p class="pt-res">${h(c.resumo)}</p>
-      ${grande && c.historia ? `<p class="pt-hist"><b>História.</b> ${h(c.historia.split(". ").slice(0, 2).join(". ").replace(/\.?$/, "."))}</p>` : ""}
-      <p class="pt-meta">${c.tempo ? `⏱ ${h(c.tempo)}` : ""}${c.nivel ? ` · ${h(c.nivel)}` : ""}${c.contextoAlvo ? ` · ${h(c.contextoAlvo)}` : ""}</p>
-      <p class="pt-modos"><span>📖 História</span><span>🧾 Modo de preparo</span><span>⚙ Detalhes avançados</span></p>
-      <span class="pt-ler">Ver receita →</span></div>
+      ${grande && c.historia ? `<p class="pt-hist"><b>${t("pub.historia")}.</b> ${h(c.historia.split(". ").slice(0, 2).join(". ").replace(/\.?$/, "."))}</p>` : ""}
+      <p class="pt-meta">${c.tempo ? `⏱ ${h(c.tempo)}` : ""}${c.nivel ? ` · ${h(nivel(c.nivel))}` : ""}${c.contextoAlvo ? ` · ${h(c.contextoAlvo)}` : ""}</p>
+      <p class="pt-modos"><span>📖 ${t("pub.historia")}</span><span>🧾 ${t("pub.preparo")}</span><span>⚙ ${t("pub.avancados")}</span></p>
+      <span class="pt-ler">${t("pub.ver")}</span></div>
   </article>`;
 }
 
 async function abrirFicha(slug) {
+  fichaAberta = slug;
   const m = document.createElement("div");
   m.className = "ig-modal"; m.setAttribute("role", "dialog"); m.setAttribute("aria-modal", "true");
-  m.innerHTML = `<div class="ig-modal-caixa"><button class="ig-fechar" aria-label="Fechar">×</button><p class="os-mu">Carregando…</p></div>`;
+  m.innerHTML = `<div class="ig-modal-caixa"><button class="ig-fechar" aria-label="${h(t("pub.fechar"))}">×</button><p class="os-mu">${t("pub.carregando")}</p></div>`;
   document.body.appendChild(m);
-  const fechar = () => { m.remove(); removeEventListener("keydown", esc); };
+  const fechar = () => { m.remove(); fichaAberta = null; removeEventListener("keydown", esc); };
   const esc = e => { if (e.key === "Escape") fechar(); };
   addEventListener("keydown", esc);
   m.addEventListener("click", e => { if (e.target === m || e.target.closest(".ig-fechar")) fechar(); });
   try {
     const d = await api(`/os-api/publico/infograficos/${encodeURIComponent(slug)}`);
     const caixa = m.querySelector(".ig-modal-caixa");
-    caixa.innerHTML = `<button class="ig-fechar" aria-label="Fechar">×</button>${renderFicha(d)}`;
+    caixa.innerHTML = `<button class="ig-fechar" aria-label="${h(t("pub.fechar"))}">×</button>${renderFicha(d)}`;
     ligarFicha(caixa);
     m.querySelector(".ig-fechar").focus();
   } catch (e) { m.querySelector(".ig-modal-caixa p").textContent = e.message; }
@@ -47,15 +50,28 @@ export async function mostrarPortal() {
   }
   raiz.hidden = false;
   if (cartoes) return;
-  raiz.innerHTML = `<p class="os-mu pt-carregando">Carregando fichas…</p>`;
-  try { cartoes = await api("/os-api/publico/infograficos"); }
+  raiz.innerHTML = `<p class="os-mu pt-carregando">${t("pub.carregando")}</p>`;
+  let lista;
+  try { lista = await api("/os-api/publico/infograficos"); }
   catch { raiz.innerHTML = ""; return; }
+  desenharCartoes(lista);
+}
+
+function desenharCartoes(lista) {
+  cartoes = lista;
   if (!cartoes.length) { raiz.innerHTML = ""; return; }
   const [hero, ...resto] = cartoes.some(c => c.destaque) ? [cartoes.find(c => c.destaque), ...cartoes.filter(c => !c.destaque)] : cartoes;
-  raiz.innerHTML = `<header class="pt-cabeca"><span class="pt-selo">Gusto · Escola</span><h2>Receitas da semana</h2>
-      <p>Receitas ilustradas com história e modo de preparo — e, para quem quer ir fundo, a ficha técnica em 4 quadrantes com referências.</p></header>
+  raiz.innerHTML = `<header class="pt-cabeca"><span class="pt-selo">${t("pub.selo")}</span><h2>${t("pub.titulo")}</h2>
+      <p>${t("pub.sub")}</p></header>
     <div class="pt-grade">${cartao(hero, true)}${resto.map(c => cartao(c)).join("")}</div>`;
 }
+
+// Troca de idioma: redesenha os cards e a ficha aberta.
+let fichaAberta = null;
+on("i18n:idioma", () => {
+  if (raiz && cartoes) { const c = cartoes; cartoes = null; desenharCartoes(c); }
+  const m = document.querySelector(".ig-modal"); if (m && fichaAberta) { m.remove(); abrirFicha(fichaAberta); }
+});
 
 export function esconderPortal() { if (raiz) raiz.hidden = true; document.querySelector(".ig-modal")?.remove(); }
 export { abrirFicha };

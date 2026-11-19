@@ -28,6 +28,17 @@ export const INGREDIENTES_CENA = ["gema", "ovo", "manteiga", "vinho", "vinagre",
 export const slugificar = s => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
   .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "infografico";
 
+/** Traduções curtas para o portal: { en: { titulo, resumo, categoria }, es: …, zh: …, hi: … }. */
+export function validarTraducoes(v) {
+  if (!v || typeof v !== "object") return null;
+  const out = {};
+  for (const l of ["en", "es", "zh", "hi"]) {
+    const x = v[l]; if (!x || typeof x !== "object") continue;
+    out[l] = { titulo: txt(x.titulo, 90, "titulo", false), resumo: txt(x.resumo, 320, "resumo", false), categoria: txt(x.categoria, 50, "categoria", false) };
+  }
+  return Object.keys(out).length ? out : null;
+}
+
 /** Origem histórica do prato (para o radar). Coordenadas aproximadas da cidade/região. */
 export function validarOrigem(o) {
   if (!o || typeof o !== "object") return null;
@@ -62,6 +73,7 @@ export function validarInfografico(d) {
     rendimento: txt(d.rendimento, 40, "rendimento", false),
     nivel: txt(d.nivel, 30, "nivel", false),
     historia: txt(d.historia, 700, "história", false),
+    i18n: validarTraducoes(d.i18n),
     origem: validarOrigem(d.origem),
     cena: {
       prato: PRATOS_CENA.includes(d.cena?.prato) ? d.cena.prato : "generico",

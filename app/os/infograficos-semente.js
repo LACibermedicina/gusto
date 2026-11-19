@@ -9,6 +9,12 @@ export const SEMENTE = [
     resumo: "Emulsão quente de gema e manteiga clarificada aromatizada por redução de estragão: o controle de 60–65 °C separa o molho nappé do molho talhado.",
     tempo: "25 min", rendimento: "≈ 300 g", nivel: "Avançado",
     historia: "Segundo a tradição, o molho foi criado por volta de 1836 pelo chef Jules Collinet, no restaurante Le Pavillon Henri IV, em Saint-Germain-en-Laye, perto de Paris. O nome homenageia o Béarn, região natal do rei Henrique IV. Tornou-se um dos molhos clássicos derivados da holandesa na cozinha francesa e companheiro tradicional de carnes grelhadas.",
+    i18n: {
+      en: { titulo: 'Béarnaise Sauce', categoria: 'Mother sauces and emulsions', resumo: 'A warm emulsion of egg yolk and clarified butter flavoured with a tarragon reduction: holding 60–65 °C is what separates a nappé sauce from a split one.' },
+      es: { titulo: 'Salsa bearnesa', categoria: 'Salsas madre y emulsiones', resumo: 'Emulsión caliente de yema y mantequilla clarificada aromatizada con reducción de estragón: controlar 60–65 °C separa la salsa nappé de la cortada.' },
+      zh: { titulo: '贝亚恩酱', categoria: '母酱与乳化', resumo: '以蛋黄和澄清黄油制成、用龙蒿浓缩液调味的热乳化酱：控制在 60–65 °C 决定酱汁是挂勺顺滑还是油水分离。' },
+      hi: { titulo: 'बेअर्नेज़ सॉस', categoria: 'मूल सॉस और इमल्शन', resumo: 'अंडे की ज़र्दी और साफ़ किए मक्खन का गरम इमल्शन, टैरागॉन रिडक्शन से सुगंधित: 60–65 °C बनाए रखना ही चिकनी और फटी सॉस का फ़र्क है।' }
+    },
     origem: { lugar: "Saint-Germain-en-Laye, França", lat: 48.898, lon: 2.093 },
     cena: { prato: "molheira", ingredientes: ["gema", "manteiga", "vinho", "chalota", "ervas", "vinagre", "pimenta", "ovo"] },
     simples: {
@@ -49,6 +55,12 @@ export const SEMENTE = [
     resumo: "Amido liberado aos poucos, caldo sempre quente e mantecatura fora do fogo: o risoto cremoso all'onda depende de cinética, não de quantidade de queijo.",
     tempo: "30 min", rendimento: "4 porções", nivel: "Intermediário",
     historia: "Uma lenda milanesa conta que, em 1574, um aprendiz dos vitrais da Catedral de Milão, que usava açafrão para colorir o vidro, o teria posto no arroz servido num casamento. Lenda à parte, o prato aparece em receituários do século XIX, como o de Pellegrino Artusi (1891), e é hoje símbolo da cozinha lombarda, servido também ao lado do ossobuco.",
+    i18n: {
+      en: { titulo: 'Risotto alla Milanese', categoria: 'Cereals and starches', resumo: "Starch released little by little, stock always hot and mantecatura off the heat: a creamy all'onda risotto is about timing, not about the amount of cheese." },
+      es: { titulo: 'Risotto alla milanese', categoria: 'Cereales y almidones', resumo: "Almidón liberado poco a poco, caldo siempre caliente y mantecatura fuera del fuego: el risotto cremoso all'onda depende del tiempo, no de la cantidad de queso." },
+      zh: { titulo: '米兰式烩饭', categoria: '谷物与淀粉', resumo: '淀粉一点点释放、高汤始终保持热、离火后完成黄油乳化：波浪般顺滑的烩饭靠的是节奏，而不是奶酪的多少。' },
+      hi: { titulo: 'रिसोट्टो अल्ला मिलानेसे', categoria: 'अनाज और स्टार्च', resumo: "स्टार्च धीरे-धीरे निकलता है, स्टॉक हमेशा गरम और आँच से हटाकर मैंटेकातुरा: मलाईदार 'अल्ल'ओंदा' रिसोट्टो समय पर निर्भर है, चीज़ की मात्रा पर नहीं।" }
+    },
     origem: { lugar: "Milão, Itália", lat: 45.464, lon: 9.19 },
     cena: { prato: "risoto", ingredientes: ["arroz", "caldo", "acafrao", "queijo", "manteiga", "cebola", "vinho", "sal"] },
     simples: {
@@ -89,6 +101,12 @@ export const SEMENTE = [
     resumo: "Cocção em banho a temperatura controlada para ponto rosé de borda a borda, seguida de selagem lenta da pele: duas fases, dois objetivos físico-químicos.",
     tempo: "2 h 15 min", rendimento: "2 porções", nivel: "Intermediário",
     historia: "O magret é o peito do pato criado para o foie gras, típico do sudoeste da França (Gasconha). Servi-lo grelhado e rosado como um bife é atribuído ao chef André Daguin, em Auch, no fim dos anos 1950. A cocção sous-vide foi desenvolvida na França nos anos 1970 e hoje garante o ponto exato antes da selagem final da pele.",
+    i18n: {
+      en: { titulo: 'Sous-Vide Duck Magret', categoria: 'Proteins and precision cooking', resumo: 'Cooked in a temperature-controlled bath for edge-to-edge rosé, then the skin is seared slowly: two stages, two physical-chemical goals.' },
+      es: { titulo: 'Magret de pato sous-vide', categoria: 'Proteínas y cocción de precisión', resumo: 'Cocción en baño a temperatura controlada para un punto rosado uniforme y sellado lento de la piel: dos fases, dos objetivos fisicoquímicos.' },
+      zh: { titulo: '低温慢煮鸭胸', categoria: '蛋白质与精准烹饪', resumo: '先在恒温水浴中煮至内外均匀的粉嫩，再慢慢煎脆鸭皮：两个阶段，两个物理化学目标。' },
+      hi: { titulo: 'सू-वीड डक मैग्रे', categoria: 'प्रोटीन और सटीक पकाना', resumo: 'नियंत्रित तापमान वाले पानी में किनारे से किनारे तक गुलाबी पकाना, फिर त्वचा को धीरे-धीरे सेंकना: दो चरण, दो भौतिक-रासायनिक लक्ष्य।' }
+    },
     origem: { lugar: "Auch, Gasconha, França", lat: 43.646, lon: 0.586 },
     cena: { prato: "magret", ingredientes: ["pato", "tomilho", "zimbro", "sal", "pimenta", "vinho"] },
     simples: {
@@ -129,6 +147,12 @@ export const SEMENTE = [
     resumo: "Centenas de camadas alternadas de massa e manteiga: no forno, a água vira vapor e empurra as folhas. Temperatura e repouso decidem o folhado.",
     tempo: "4 h (com repousos)", rendimento: "≈ 1,7 kg", nivel: "Avançado",
     historia: "Massas em camadas existem há séculos no Mediterrâneo e no Oriente Médio, mas a massa folhada com manteiga foi codificada pelos confeiteiros franceses: receitas aparecem em tratados do século XVII. Uma lenda popular atribui a invenção ao jovem aprendiz Claude Gellée, que depois ficaria famoso como o pintor Claude Lorrain.",
+    i18n: {
+      en: { titulo: 'Classic Puff Pastry', categoria: 'Pastry and baking', resumo: 'Hundreds of alternating layers of dough and butter: in the oven the water turns to steam and pushes the layers apart. Temperature and resting decide the result.' },
+      es: { titulo: 'Hojaldre clásico', categoria: 'Pastelería y panadería', resumo: 'Cientos de capas alternas de masa y mantequilla: en el horno el agua se convierte en vapor y separa las hojas. Temperatura y reposo deciden el hojaldre.' },
+      zh: { titulo: '经典千层酥皮', categoria: '糕点与烘焙', resumo: '面团与黄油交替的数百层：在烤箱中水分化为蒸汽，把酥层顶开。温度与静置决定成败。' },
+      hi: { titulo: 'क्लासिक पफ पेस्ट्री', categoria: 'पेस्ट्री और बेकिंग', resumo: 'आटे और मक्खन की सैकड़ों बारी-बारी परतें: ओवन में पानी भाप बनकर परतों को ऊपर उठाता है। तापमान और आराम का समय नतीजा तय करते हैं।' }
+    },
     origem: { lugar: "França (confeitaria francesa)", lat: 48.857, lon: 2.352 },
     cena: { prato: "folhada", ingredientes: ["farinha", "manteiga", "agua", "sal", "rolo", "ovo"] },
     simples: {
@@ -169,6 +193,12 @@ export const SEMENTE = [
     resumo: "Ossos tostados, mirepoix e horas em frémissement extraem gelatina e aromas de Maillard: a base de molhos escuros e da demi-glace.",
     tempo: "6–8 h", rendimento: "≈ 4 L", nivel: "Intermediário",
     historia: "Os fundos são a base do sistema de molhos franceses. Antonin Carême organizou os grandes molhos no início do século XIX e Auguste Escoffier, em Le Guide Culinaire (1903), definiu os fundos como o alicerce da cozinha clássica. O fundo escuro de vitela, reduzido, dá origem à demi-glace e a molhos como o bordelaise e o madeira.",
+    i18n: {
+      en: { titulo: 'Brown Veal Stock (Fond Brun)', categoria: 'Stocks and bases', resumo: 'Roasted bones, mirepoix and hours at a bare simmer extract gelatin and Maillard aromas: the base of brown sauces and demi-glace.' },
+      es: { titulo: 'Fondo oscuro de ternera (fond brun)', categoria: 'Fondos y bases', resumo: 'Huesos tostados, mirepoix y horas a hervor mínimo extraen gelatina y aromas de Maillard: la base de las salsas oscuras y de la demi-glace.' },
+      zh: { titulo: '褐色小牛高汤 (Fond Brun)', categoria: '高汤与基底', resumo: '烤过的骨头、调味蔬菜和数小时的微沸，萃取出明胶与美拉德香气：褐色酱汁和半釉汁的基础。' },
+      hi: { titulo: 'ब्राउन वील स्टॉक (फ़ॉन ब्रुन)', categoria: 'स्टॉक और आधार', resumo: 'भुनी हड्डियाँ, मिरपुआ और घंटों की धीमी आँच जिलेटिन और मायार्ड सुगंध निकालती है: गहरी सॉस और डेमी-ग्लास का आधार।' }
+    },
     origem: { lugar: "Paris, França (cozinha clássica)", lat: 48.857, lon: 2.352 },
     cena: { prato: "fundo", ingredientes: ["ossos", "cenoura", "cebola", "salsao", "tomate", "louro", "pimenta", "agua"] },
     simples: {

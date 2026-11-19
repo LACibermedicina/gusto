@@ -6,6 +6,15 @@ Fluxo: toda mudança entra pela branch `teste` (https://gusto.m3d.pro/teste/) e 
 ## [Não lançado]
 Próxima iteração (sugestão, ver `docs/ARQUITETURA.md` §8): ligar a interface base à API (login único), testes de integração com PostGIS no CI, TURN em produção.
 
+## [0.7.0-alpha] — 2026-11-19
+### Alterado
+- **Antes do login:** removidos o fundo, o radar e a caixa central de login. Fica só uma barra superior discreta (logo, bandeiras de idioma, usuário, senha e "Entrar") e, abaixo, os cards de receitas públicas.
+- **Idiomas antes do login:** as 5 bandeiras ficam na barra superior e traduzem barra, cards, ficha, quadrantes e legendas (dicionários estáticos). As fichas semeadas trazem título, categoria e resumo traduzidos; o restante do texto é traduzido pela IA do servidor quando ela está ativa, e um aviso indica isso.
+- **Radar só depois do login, oculto por padrão:** um ícone discreto ◎ na barra superior liga e desliga o radar (a preferência fica salva por usuário). Com o radar ligado, os cards ficam esmaecidos.
+
+### Corrigido
+- No celular, o login da barra se recolhe num botão; os campos usam seletores próprios para não herdar a largura do CSS base.
+
 ## [0.6.0-alpha] — 2026-11-19
 ### Alterado
 - **Fundo antes do login:** o mapa antigo foi removido (continua só no modo Mapa da Cozinha). No lugar, um **radar de receitas** discreto em volta da caixa de login: disco inclinado com anéis de distância em escala logarítmica (1 a 10.000 km) e varredura suave.

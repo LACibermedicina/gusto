@@ -13,7 +13,7 @@ export async function semearInfograficos(q) {
              on conflict(slug) do nothing`, [s.slug, c.titulo, c.categoria, c, !!s.destaque]);
     // Fichas criadas antes do painel simplificado recebem só esse bloco (o resto, se editado, é preservado).
     // Blocos que surgiram depois da criação da ficha entram só se faltarem (edições do admin são preservadas).
-    for (const k of ["simples", "historia", "cena", "origem"]) {
+    for (const k of ["simples", "historia", "cena", "origem", "i18n"]) {
       const v = c[k]; if (!v || (k === "cena" && !v.ingredientes.length)) continue;
       await q(`update infograficos set conteudo = jsonb_set(conteudo, $2, $3::jsonb, true)
                where slug=$1 and (coalesce(conteudo->$4,'null'::jsonb) in ('null'::jsonb, '""'::jsonb) or ($4='cena' and coalesce(jsonb_array_length(conteudo->'cena'->'ingredientes'),0)=0))`,
@@ -25,7 +25,7 @@ export async function semearInfograficos(q) {
 export function montarInfograficos(app, { q, A, E, ah, au, one, P, can }) {
   const lim = rateLimit({ windowMs: 60e3, max: 120, standardHeaders: true, legacyHeaders: false });
   const cartao = r => ({ slug: r.slug, titulo: r.titulo, categoria: r.categoria, destaque: r.destaque, resumo: r.conteudo.resumo,
-    tempo: r.conteudo.tempo, nivel: r.conteudo.nivel, contextoAlvo: r.conteudo.contextoAlvo, atualizado: r.atualizado_em, cena: r.conteudo.cena, historia: r.conteudo.historia,
+    tempo: r.conteudo.tempo, nivel: r.conteudo.nivel, contextoAlvo: r.conteudo.contextoAlvo, atualizado: r.atualizado_em, cena: r.conteudo.cena, historia: r.conteudo.historia, i18n: r.conteudo.i18n,
     etapas: r.conteudo.fisicoQuimica.etapas.map(e => ({ titulo: e.titulo, icone: e.icone })), alerta: r.conteudo.fisicoQuimica.alerta.titulo, sensorial: r.conteudo.praca.sensorial.slice(0, 3), dica: r.conteudo.segredos.dicas[0] });
 
   // ---- público (sem login): só o que está publicado, sem dados de autoria ----
