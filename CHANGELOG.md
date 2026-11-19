@@ -6,6 +6,14 @@ Fluxo: toda mudança entra pela branch `teste` (https://gusto.m3d.pro/teste/) e 
 ## [Não lançado]
 Próxima iteração (sugestão, ver `docs/ARQUITETURA.md` §8): ligar a interface base à API (login único), testes de integração com PostGIS no CI, TURN em produção.
 
+## [0.5.0-alpha] — 2026-11-19
+### Adicionado
+- **Apresentação ilustrada da receita:** ao abrir um card, a primeira tela mostra uma ilustração 3D estilizada (estilo animação, vetorial e original) do prato pronto com os ingredientes ao redor, a lista de ingredientes com quantidades, tempo, rendimento, nível, a descrição resumida e a **história do prato**.
+- **Detalhes avançados** agora reúnem, como cards extras, o modo de preparo passo a passo com a lista de mise en place e a ficha técnica de 4 quadrantes.
+- Biblioteca de cenas (`public/os/cena.js`): 6 pratos (risoto, molheira, magret, folhada, fundo, genérico) e 25 ingredientes desenhados; as fichas descrevem a cena com `{ prato, ingredientes }` e o agente de IA escolhe dessa lista.
+- Cards do portal com a ilustração e o tempo em destaque; destaque com trecho da história.
+- As 5 fichas semeadas ganharam história (com "segundo a tradição" para lendas) e cena; fichas já gravadas recebem só os blocos que faltam.
+
 ## [0.4.0-alpha] — 2026-11-19
 ### Adicionado
 - **Painel simplificado de entrada nas receitas:** ao abrir um card, aparece primeiro a receita direta — cabeçalho com categoria, nome, resumo, tempo, rendimento e nível; **Ingredientes** com quantidades (lista de mise en place com marcação) e **Modo de preparo** em passos numerados, com o ponto de atenção crítico em destaque. O botão **Detalhes avançados** abre a ficha técnica de 4 quadrantes (e "Voltar ao modo simples" retorna). Vale no portal público e na janela Fichas.

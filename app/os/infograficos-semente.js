@@ -8,6 +8,8 @@ export const SEMENTE = [
     titulo: "Molho Béarnaise", categoria: "Molhos-mãe e emulsões", contextoAlvo: "Praça de cozinha quente em serviço de alta demanda",
     resumo: "Emulsão quente de gema e manteiga clarificada aromatizada por redução de estragão: o controle de 60–65 °C separa o molho nappé do molho talhado.",
     tempo: "25 min", rendimento: "≈ 300 g", nivel: "Avançado",
+    historia: "Segundo a tradição, o molho foi criado por volta de 1836 pelo chef Jules Collinet, no restaurante Le Pavillon Henri IV, em Saint-Germain-en-Laye, perto de Paris. O nome homenageia o Béarn, região natal do rei Henrique IV. Tornou-se um dos molhos clássicos derivados da holandesa na cozinha francesa e companheiro tradicional de carnes grelhadas.",
+    cena: { prato: "molheira", ingredientes: ["gema", "manteiga", "vinho", "chalota", "ervas", "vinagre", "pimenta", "ovo"] },
     simples: {
       ingredientes: [{ qtd: "3", item: "gemas" }, { qtd: "200 g", item: "manteiga sem sal (clarificada, ≈ 170 g)" }, { qtd: "60 mL", item: "vinho branco seco" }, { qtd: "60 mL", item: "vinagre de vinho branco" }, { qtd: "2 (≈ 40 g)", item: "chalotas em ciselé" }, { qtd: "2 colheres (sopa)", item: "estragão picado (metade na redução, metade no final)" }, { qtd: "1 colher (sopa)", item: "cerefólio picado" }, { qtd: "1 colher (chá)", item: "pimenta mignonette" }, { qtd: "Q.B.", item: "sal" }],
       preparo: ["Clarifique a manteiga e mantenha morna (≈ 50–60 °C).", "Reduza vinho, vinagre, chalota, metade do estragão e a pimenta a ≈ 1/3; coe e deixe amornar.", "Em banho-maria brando, bata as gemas com a redução e 1 colher (sopa) de água até espumar e engrossar (ponto de fita, 60–65 °C).", "Fora do calor direto, incorpore a manteiga em fio, batendo sem parar.", "Acerte o sal e junte o restante do estragão e o cerefólio.", "Mantenha morno em banho-maria brando e sirva."]
@@ -45,6 +47,8 @@ export const SEMENTE = [
     titulo: "Risotto alla Milanese", categoria: "Cereais e amidos", contextoAlvo: "Aula prática de técnicas clássicas",
     resumo: "Amido liberado aos poucos, caldo sempre quente e mantecatura fora do fogo: o risoto cremoso all'onda depende de cinética, não de quantidade de queijo.",
     tempo: "30 min", rendimento: "4 porções", nivel: "Intermediário",
+    historia: "Uma lenda milanesa conta que, em 1574, um aprendiz dos vitrais da Catedral de Milão, que usava açafrão para colorir o vidro, o teria posto no arroz servido num casamento. Lenda à parte, o prato aparece em receituários do século XIX, como o de Pellegrino Artusi (1891), e é hoje símbolo da cozinha lombarda, servido também ao lado do ossobuco.",
+    cena: { prato: "risoto", ingredientes: ["arroz", "caldo", "acafrao", "queijo", "manteiga", "cebola", "vinho", "sal"] },
     simples: {
       ingredientes: [{ qtd: "320 g", item: "arroz Carnaroli ou Arborio (sem lavar)" }, { qtd: "1,3 L", item: "caldo de carne claro, quente" }, { qtd: "1 pequena (≈ 80 g)", item: "cebola em brunoise" }, { qtd: "60 g", item: "manteiga (20 g para refogar + 40 g fria em cubos)" }, { qtd: "100 mL", item: "vinho branco seco" }, { qtd: "1 sachê (≈ 0,1–0,2 g)", item: "açafrão em pistilos" }, { qtd: "60 g", item: "Grana Padano ralado fino" }, { qtd: "Q.B.", item: "sal" }],
       preparo: ["Hidrate o açafrão em uma concha de caldo quente.", "Sue a cebola em 20 g de manteiga, sem dourar.", "Junte o arroz e toste por ≈ 2 min, até as bordas ficarem translúcidas.", "Deglace com o vinho e deixe evaporar.", "Adicione o caldo quente em conchas, mexendo, por 16–18 min; junte o açafrão na metade.", "Fora do fogo, manteque com a manteiga fria e o queijo, descanse 1 min e sirva all'onda."]
@@ -82,6 +86,8 @@ export const SEMENTE = [
     titulo: "Magret de Pato Sous-Vide", categoria: "Proteínas e cocção de precisão", contextoAlvo: "Ficha técnica operacional",
     resumo: "Cocção em banho a temperatura controlada para ponto rosé de borda a borda, seguida de selagem lenta da pele: duas fases, dois objetivos físico-químicos.",
     tempo: "2 h 15 min", rendimento: "2 porções", nivel: "Intermediário",
+    historia: "O magret é o peito do pato criado para o foie gras, típico do sudoeste da França (Gasconha). Servi-lo grelhado e rosado como um bife é atribuído ao chef André Daguin, em Auch, no fim dos anos 1950. A cocção sous-vide foi desenvolvida na França nos anos 1970 e hoje garante o ponto exato antes da selagem final da pele.",
+    cena: { prato: "magret", ingredientes: ["pato", "tomilho", "zimbro", "sal", "pimenta", "vinho"] },
     simples: {
       ingredientes: [{ qtd: "1 peça (≈ 350–400 g)", item: "magret de pato" }, { qtd: "≈ 1% do peso", item: "sal fino" }, { qtd: "Q.B.", item: "pimenta-do-reino moída na hora" }, { qtd: "2 ramos", item: "tomilho" }, { qtd: "3", item: "bagas de zimbro levemente amassadas" }],
       preparo: ["Risque a pele em losangos sem atingir a carne e tempere.", "Embale a vácuo com o tomilho e o zimbro.", "Cozinhe em banho a 57 °C por 1 h 30 – 2 h.", "Seque bem e sele com a pele para baixo em fogo médio por 6–8 min, retirando a gordura.", "Vire por 30 s e deixe repousar 2–3 min.", "Fatie em viés e sirva."]
@@ -119,6 +125,8 @@ export const SEMENTE = [
     titulo: "Massa Folhada Clássica", categoria: "Confeitaria e panificação", contextoAlvo: "Estudo para concursos de gastronomia",
     resumo: "Centenas de camadas alternadas de massa e manteiga: no forno, a água vira vapor e empurra as folhas. Temperatura e repouso decidem o folhado.",
     tempo: "4 h (com repousos)", rendimento: "≈ 1,7 kg", nivel: "Avançado",
+    historia: "Massas em camadas existem há séculos no Mediterrâneo e no Oriente Médio, mas a massa folhada com manteiga foi codificada pelos confeiteiros franceses: receitas aparecem em tratados do século XVII. Uma lenda popular atribui a invenção ao jovem aprendiz Claude Gellée, que depois ficaria famoso como o pintor Claude Lorrain.",
+    cena: { prato: "folhada", ingredientes: ["farinha", "manteiga", "agua", "sal", "rolo", "ovo"] },
     simples: {
       ingredientes: [{ qtd: "1 kg", item: "farinha de trigo" }, { qtd: "≈ 500 mL", item: "água gelada" }, { qtd: "20 g", item: "sal" }, { qtd: "100 g", item: "manteiga amolecida (para a détrempe)" }, { qtd: "750 g", item: "manteiga seca, fria (beurrage)" }, { qtd: "1", item: "ovo batido (dorure)" }],
       preparo: ["Détrempe: misture farinha, sal, água e 100 g de manteiga sem sovar; forme um bloco, faça um corte em cruz e refrigere 30 min.", "Beurrage: bata a manteiga entre plásticos até uma placa de ≈ 1 cm, maleável (12–15 °C).", "Abra a détrempe em cruz, coloque a manteiga no centro e feche como envelope.", "Abra em retângulo e dê 2 voltas simples; refrigere 20–30 min.", "Repita até completar 6 voltas.", "Abra a 3–4 mm, corte, pincele só o topo e asse a 200–220 °C até dourar."]
@@ -156,6 +164,8 @@ export const SEMENTE = [
     titulo: "Fundo Escuro de Vitela (Fond Brun)", categoria: "Fundos e bases", contextoAlvo: "Aula prática de técnicas clássicas",
     resumo: "Ossos tostados, mirepoix e horas em frémissement extraem gelatina e aromas de Maillard: a base de molhos escuros e da demi-glace.",
     tempo: "6–8 h", rendimento: "≈ 4 L", nivel: "Intermediário",
+    historia: "Os fundos são a base do sistema de molhos franceses. Antonin Carême organizou os grandes molhos no início do século XIX e Auguste Escoffier, em Le Guide Culinaire (1903), definiu os fundos como o alicerce da cozinha clássica. O fundo escuro de vitela, reduzido, dá origem à demi-glace e a molhos como o bordelaise e o madeira.",
+    cena: { prato: "fundo", ingredientes: ["ossos", "cenoura", "cebola", "salsao", "tomate", "louro", "pimenta", "agua"] },
     simples: {
       ingredientes: [{ qtd: "5 kg", item: "ossos de vitela (joelho, rabo) cortados" }, { qtd: "500 g", item: "cebola em cubos grandes" }, { qtd: "250 g", item: "cenoura em cubos grandes" }, { qtd: "250 g", item: "salsão em cubos grandes" }, { qtd: "100 g", item: "extrato de tomate" }, { qtd: "1", item: "bouquet garni (louro, tomilho, talos de salsa)" }, { qtd: "10", item: "grãos de pimenta-do-reino" }, { qtd: "≈ 8 L", item: "água fria" }],
       preparo: ["Toste os ossos em forno a 200–220 °C (≈ 45 min) até dourarem.", "Junte o mirepoix e doure; adicione o extrato de tomate e toste por ≈ 5 min, sem queimar.", "Passe tudo para a panela e deglace a assadeira com água, juntando o líquido.", "Cubra com água fria, leve à fervura e baixe para fervura mínima; escume.", "Cozinhe 6–8 h com o bouquet garni e a pimenta, escumando de tempos em tempos.", "Coe sem prensar, resfrie rápido e retire a gordura depois de frio."]

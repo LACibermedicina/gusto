@@ -1,6 +1,7 @@
 // GUSTO · renderização do infográfico gastronômico (cabeçalho + 4 quadrantes + glossário) · by m3d.pro
 import { h } from "./api.js";
 import { iconeCozinha as ic } from "./icones-cozinha.js";
+import { cenaSVG } from "./cena.js";
 
 const itens = l => l.map(x => `<li>${h(x)}</li>`).join("");
 
@@ -46,7 +47,7 @@ export function renderInfografico(d) {
 </article>`;
 }
 
-/** Painel simplificado de entrada: ingredientes + modo de preparo, com botão para os detalhes avançados. */
+/** Card de preparo: ingredientes (mise en place) + modo de preparo + ponto de atenção. */
 export function renderSimples(d) {
   const s = d.simples;
   return `<article class="fx-simples" aria-label="${h(d.titulo)} — receita">
@@ -62,21 +63,41 @@ export function renderSimples(d) {
       <ol>${s.preparo.map(p => `<li><span>${h(p)}</span></li>`).join("")}</ol>
       ${d.fisicoQuimica?.alerta ? `<div class="fx-atencao">${ic("alerta", "Atenção")}<div><b>Ponto de atenção: ${h(d.fisicoQuimica.alerta.titulo)}</b><p>${h(d.fisicoQuimica.alerta.texto)}</p></div></div>` : ""}</section>
   </div>
-  <footer class="fx-rodape"><button class="fx-alternar" type="button" aria-expanded="false">${ic("molecula", "")}<span><b>Detalhes avançados</b><small>Ficha técnica em 4 quadrantes: físico-química, praça, fluxograma, segredos do chef e referências</small></span><i aria-hidden="true">›</i></button></footer>
 </article>`;
 }
 
-/** Ficha completa: começa no painel simplificado; "Detalhes avançados" mostra o infográfico de 4 quadrantes. */
+const nomeCurto = i => i.item.replace(/\s*\(.*$/, "");
+
+/** Entrada da receita: ilustração do prato pronto com os ingredientes, tempo, resumo e história. */
+export function renderEntrada(d) {
+  const ings = d.simples?.ingredientes || [];
+  return `<article class="fe" aria-label="${h(d.titulo)}">
+  <figure class="fe-img">${cenaSVG(d.cena, `Ilustração: ${h(d.titulo)} pronto, com os ingredientes`)}
+    ${ings.length ? `<figcaption><span class="fe-leg">Ingredientes</span>${ings.map(i => `<span class="fe-chip"><b>${h(i.qtd)}</b> ${h(nomeCurto(i))}</span>`).join("")}</figcaption>` : ""}</figure>
+  <div class="fe-txt">
+    <p class="fe-cat">${h(d.categoria || "")}</p>
+    <h2>${h(d.titulo)}</h2>
+    <p class="fe-badges">${d.tempo ? `<span>⏱ ${h(d.tempo)}</span>` : ""}${d.rendimento ? `<span>🍽 ${h(d.rendimento)}</span>` : ""}${d.nivel ? `<span>◆ ${h(d.nivel)}</span>` : ""}</p>
+    <p class="fe-res">${h(d.resumo || "")}</p>
+    ${d.historia ? `<section class="fe-hist">${ic("livro", "História")}<div><h3>História do prato</h3><p>${h(d.historia)}</p></div></section>` : ""}
+    <button class="fx-alternar" type="button" aria-expanded="false">${ic("molecula", "")}<span><b>Detalhes avançados</b><small>Modo de preparo passo a passo, lista de mise en place e ficha técnica em 4 quadrantes</small></span><i aria-hidden="true">›</i></button>
+  </div>
+</article>`;
+}
+
+/** Ficha completa: começa na apresentação ilustrada; "Detalhes avançados" reúne o card de preparo e o infográfico. */
 export function renderFicha(d) {
   if (!d.simples) return renderInfografico(d);
-  return `<div class="fx">${renderSimples(d)}<div class="fx-avancado" hidden>
-    <button class="fx-voltar" type="button">‹ Voltar ao modo simples</button>${renderInfografico(d)}</div></div>`;
+  return `<div class="fx"><div class="fx-entrada">${renderEntrada(d)}</div><div class="fx-avancado" hidden>
+    <button class="fx-voltar" type="button">‹ Voltar à apresentação</button>
+    <p class="fx-titulo-av">Detalhes avançados</p>
+    ${renderSimples(d)}<div class="fx-sep"></div>${renderInfografico(d)}</div></div>`;
 }
 
 /** Liga os botões de alternância de uma ficha já inserida no DOM. */
 export function ligarFicha(raiz) {
   const fx = raiz.querySelector(".fx"); if (!fx) return;
-  const simples = fx.querySelector(".fx-simples"), av = fx.querySelector(".fx-avancado"), bt = fx.querySelector(".fx-alternar");
+  const simples = fx.querySelector(".fx-entrada"), av = fx.querySelector(".fx-avancado"), bt = fx.querySelector(".fx-alternar");
   const mostrar = adv => {
     simples.hidden = adv; av.hidden = !adv; bt.setAttribute("aria-expanded", String(adv));
     (adv ? av : simples).scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });

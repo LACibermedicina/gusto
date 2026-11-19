@@ -134,6 +134,8 @@ test("infográficos semeados cumprem o padrão (cabeçalho + 4 quadrantes + refe
     assert.match(JSON.stringify(d), /°C|°/, `${s.slug}: sem temperatura explícita`);
     assert.ok(d.simples && d.simples.ingredientes.length >= 2 && d.simples.preparo.length >= 2, `${s.slug}: painel simplificado`);
     assert.ok(d.simples.ingredientes.every(i => i.qtd), `${s.slug}: ingrediente sem quantidade`);
+    assert.ok(d.historia.length > 120, `${s.slug}: história`);
+    assert.notEqual(d.cena.prato, "generico", `${s.slug}: cena`); assert.ok(d.cena.ingredientes.length >= 5, `${s.slug}: ingredientes na cena`);
   }
 });
 
@@ -149,5 +151,14 @@ test("infográfico incompleto da IA é recusado; ícone desconhecido cai no padr
 });
 
 test("prompt do agente exige JSON, referências clássicas e não inventar edições", () => {
-  for (const k of ["Escoffier", "Larousse", "Paul Bocuse", "McGee", "RDC", "JSON", "Não invente", "\"simples\"", "ingredientes", "preparo"]) assert.ok(SISTEMA_INFOGRAFICO.includes(k), k);
+  for (const k of ["Escoffier", "Larousse", "Paul Bocuse", "McGee", "RDC", "JSON", "Não invente", "\"simples\"", "ingredientes", "preparo", "historia", "cena"]) assert.ok(SISTEMA_INFOGRAFICO.includes(k), k);
+});
+
+test("cena: chaves do servidor e do desenho são as mesmas", async () => {
+  const { PRATOS_CENA, INGREDIENTES_CENA } = await import("../app/os/infografico-esquema.js");
+  const cena = await import("../app/public/os/cena.js");
+  assert.deepEqual([...cena.PRATOS_CENA].sort(), [...PRATOS_CENA].sort());
+  assert.deepEqual([...cena.INGREDIENTES_CENA].sort(), [...INGREDIENTES_CENA].sort());
+  const svg = cena.cenaSVG({ prato: "risoto", ingredientes: ["arroz", "queijo", "inexistente"] }, "x");
+  assert.match(svg, /^<svg/); assert.ok(!svg.includes("undefined"));
 });

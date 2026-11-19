@@ -20,6 +20,11 @@ const lista = (v, min, max, maxTxt, campo) => {
 };
 const icone = (v, padrao) => (ICONES.includes(v) ? v : padrao);
 
+// Cena ilustrada (mesmas chaves de public/os/cena.js).
+export const PRATOS_CENA = ["risoto", "molheira", "magret", "folhada", "fundo", "generico"];
+export const INGREDIENTES_CENA = ["gema", "ovo", "manteiga", "vinho", "vinagre", "chalota", "cebola", "ervas", "tomilho", "louro", "pimenta", "zimbro", "sal",
+  "arroz", "acafrao", "queijo", "caldo", "farinha", "rolo", "ossos", "cenoura", "salsao", "tomate", "pato", "agua"];
+
 export const slugificar = s => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
   .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "infografico";
 
@@ -48,6 +53,11 @@ export function validarInfografico(d) {
     tempo: txt(d.tempo, 40, "tempo", false),
     rendimento: txt(d.rendimento, 40, "rendimento", false),
     nivel: txt(d.nivel, 30, "nivel", false),
+    historia: txt(d.historia, 700, "história", false),
+    cena: {
+      prato: PRATOS_CENA.includes(d.cena?.prato) ? d.cena.prato : "generico",
+      ingredientes: [...new Set((Array.isArray(d.cena?.ingredientes) ? d.cena.ingredientes : []).filter(i => INGREDIENTES_CENA.includes(i)))].slice(0, 8)
+    },
     simples: validarSimples(d.simples),
     fisicoQuimica: {
       etapas: fq.etapas.map((e, i) => ({ titulo: txt(e.titulo, 50, `etapa ${i + 1}`), texto: txt(e.texto, 320, `etapa ${i + 1}`), icone: icone(e.icone, padraoEtapa[i]) })),

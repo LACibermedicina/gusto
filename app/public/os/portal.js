@@ -2,20 +2,18 @@
 import { api, h } from "./api.js";
 import { renderFicha, ligarFicha } from "./infografico.js";
 import { iconeCozinha as ic } from "./icones-cozinha.js";
+import { cenaSVG } from "./cena.js";
 
 let raiz = null, cartoes = null;
 
 function cartao(c, grande = false) {
   return `<article class="pt-card${grande ? " pt-hero" : ""}" tabindex="0" role="link" data-slug="${h(c.slug)}" aria-label="Abrir receita: ${h(c.titulo)}">
+    <div class="pt-img">${cenaSVG(c.cena, `Ilustração: ${h(c.titulo)}`)}${c.tempo ? `<span class="pt-tempo">⏱ ${h(c.tempo)}</span>` : ""}</div>
     <div class="pt-faixa"><h3>${h(c.titulo.toUpperCase())}</h3><small>| FICHA COGNITIVA DE EXECUÇÃO E TÉCNICA CLÁSSICA</small></div>
-    <div class="pt-quad" aria-hidden="true">
-      <span>${ic("molecula")}<i>Físico-química</i></span><span>${ic("sensorial")}<i>Praça</i></span>
-      <span>${ic("panela")}<i>Fluxograma</i></span><span>${ic("estrela")}<i>Segredos</i></span>
-    </div>
     <div class="pt-txt"><p class="pt-cat">${h(c.categoria)}</p><p class="pt-res">${h(c.resumo)}</p>
-      ${grande && c.etapas ? `<ol class="pt-linha">${c.etapas.map((e, i) => `<li>${ic(e.icone, e.titulo)}<span>${i + 1}. ${h(e.titulo)}</span></li>`).join("")}</ol>${c.alerta ? `<p class="pt-alerta">⚠ <b>${h(c.alerta)}</b></p>` : ""}${c.sensorial ? `<div class="pt-duas"><div><p class="pt-cat">Perfil sensorial ideal</p><ul>${c.sensorial.map(x => `<li>${h(x)}</li>`).join("")}</ul></div>${c.dica ? `<div><p class="pt-cat">Segredo do chef</p><p>★ ${h(c.dica)}</p></div>` : ""}</div>` : ""}` : ""}
+      ${grande && c.historia ? `<p class="pt-hist"><b>História.</b> ${h(c.historia.split(". ").slice(0, 2).join(". ").replace(/\.?$/, "."))}</p>` : ""}
       <p class="pt-meta">${c.tempo ? `⏱ ${h(c.tempo)}` : ""}${c.nivel ? ` · ${h(c.nivel)}` : ""}${c.contextoAlvo ? ` · ${h(c.contextoAlvo)}` : ""}</p>
-      <p class="pt-modos"><span>🧾 Ingredientes e modo de preparo</span><span>⚙ Detalhes avançados</span></p>
+      <p class="pt-modos"><span>📖 História</span><span>🧾 Modo de preparo</span><span>⚙ Detalhes avançados</span></p>
       <span class="pt-ler">Ver receita →</span></div>
   </article>`;
 }
@@ -54,8 +52,8 @@ export async function mostrarPortal() {
   catch { raiz.innerHTML = ""; return; }
   if (!cartoes.length) { raiz.innerHTML = ""; return; }
   const [hero, ...resto] = cartoes.some(c => c.destaque) ? [cartoes.find(c => c.destaque), ...cartoes.filter(c => !c.destaque)] : cartoes;
-  raiz.innerHTML = `<header class="pt-cabeca"><span class="pt-selo">Gusto · Escola</span><h2>Fichas técnicas da semana</h2>
-      <p>Técnicas clássicas em 4 quadrantes: físico-química, praça, fluxograma e segredos do chef — com referências.</p></header>
+  raiz.innerHTML = `<header class="pt-cabeca"><span class="pt-selo">Gusto · Escola</span><h2>Receitas da semana</h2>
+      <p>Receitas ilustradas com história e modo de preparo — e, para quem quer ir fundo, a ficha técnica em 4 quadrantes com referências.</p></header>
     <div class="pt-grade">${cartao(hero, true)}${resto.map(c => cartao(c)).join("")}</div>`;
 }
 
