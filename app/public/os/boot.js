@@ -15,7 +15,8 @@ import { privacidade } from "./mods/privacidade.js";
 import { sobre } from "./mods/sobre.js";
 import { infograficos } from "./mods/infograficos.js";
 import { iniciarAvatar, alternarAvatar } from "./mods/avatar.js";
-import { instalarPonteLogin } from "./ponte.js";
+import { instalarPonteLogin, garantirLocal } from "./ponte.js";
+import { montarAcesso, lerRetornoOAuth } from "./acesso.js";
 import { mostrarPortal, esconderPortal, abrirFicha } from "./portal.js";
 import { mostrarRadar, radarVisivel } from "./radar.js";
 import { iniciarDicas } from "./dicas.js";
@@ -87,6 +88,32 @@ function abrirCozinha(tab) {
   if (estaAberta("cozinha")) focar("cozinha"); else abrir(cozinhaDef());
 }
 
+// ---------------- Acesso (antes do login) ----------------
+async function entrarComSenha(u, p) {
+  /* eslint-disable no-undef */
+  try { if (!document.getElementById("lu")) login(); } catch { /* */ }
+  /* eslint-enable no-undef */
+  const lu = document.getElementById("lu"), lp = document.getElementById("lp");
+  if (!lu || !lp || typeof window.go_ !== "function") return "erro";
+  lu.value = u; lp.value = p;
+  await window.go_();
+  await new Promise(r => setTimeout(r, 150));
+  if (base.logada()) return "ok";
+  return /aguarde|tentativas/i.test(document.getElementById("le")?.textContent || "") ? "bloqueio" : "erro";
+}
+/** Sessão aberta no servidor sem senha digitada (cadastro novo ou Google/X/Apple/Microsoft): entra também na base. */
+async function entrouPeloServidor({ novo } = {}) {
+  await recarregarSessao();
+  await restaurarBase();
+  atualizarPortao();
+  if (novo && base.logada()) setTimeout(() => abrirModulo("conta"), 400);
+}
+function avisoPublico(txt) {
+  const el = document.querySelector(".os-pub-aviso"); if (!el) return;
+  el.textContent = txt; el.hidden = false; clearTimeout(avisoPublico.t);
+  avisoPublico.t = setTimeout(() => { el.hidden = true; }, 7000);
+}
+
 // ---------------- Barra superior ----------------
 function montarChrome() {
   const raiz = document.createElement("div");
@@ -97,13 +124,9 @@ function montarChrome() {
     <div class="os-topo-pub" role="banner">
       <span class="os-pub-logo"></span>
       <span class="os-pub-esp"></span>
+      <div class="os-pub-acesso"></div>
       <span class="os-pub-idiomas"></span>
-      <form class="os-pub-login" autocomplete="on">
-        <input name="u" autocomplete="username" maxlength="20" required data-t-ph="pub.usuario">
-        <input name="p" type="password" autocomplete="current-password" required data-t-ph="pub.senha">
-        <button class="os-pub-entrar" data-t="pub.entrar"></button>
-        <span class="os-pub-erro" role="alert"></span>
-      </form>
+      <p class="os-pub-aviso" role="status" hidden></p>
     </div>
     <div class="os-idiomas" role="group" aria-label="Idioma">
       ${IDIOMAS.map(i => `<button class="os-bandeira" data-lang="${i.cod}" data-dica-titulo="${h(i.nome)}" data-dica-texto="${h(i.rotulo)}" aria-label="${h(i.nome)}" aria-pressed="false">${BANDEIRAS[i.cod]}</button>`).join("")}
@@ -119,25 +142,8 @@ function montarChrome() {
   // Logo da base no cabeçalho público.
   const logo = document.querySelector("body > header svg");
   raiz.querySelector(".os-pub-logo").innerHTML = (logo ? logo.outerHTML : "") + `<b>Gusto</b><small>by m3d.pro</small>`;
-  // Login compacto no cabeçalho: usa o login da base (com a ponte para a API e o bloqueio por tentativas).
-  const f = raiz.querySelector(".os-pub-login"), erro = f.querySelector(".os-pub-erro");
-  f.addEventListener("submit", async e => {
-    e.preventDefault(); erro.textContent = "";
-    if (matchMedia("(max-width: 720px)").matches && !f.classList.contains("os-aberto")) { f.classList.add("os-aberto"); f.u.focus(); return; }
-    /* eslint-disable no-undef */
-    try { if (!document.getElementById("lu")) login(); } catch { /* */ }
-    /* eslint-enable no-undef */
-    const lu = document.getElementById("lu"), lp = document.getElementById("lp");
-    if (!lu || !lp || typeof window.go_ !== "function") return;
-    lu.value = f.u.value; lp.value = f.p.value;
-    const bt = f.querySelector("button"); bt.disabled = true;
-    try { await window.go_(); } finally { bt.disabled = false; }
-    setTimeout(() => {
-      if (base.logada()) { f.reset(); f.classList.remove("os-aberto"); return; }
-      const msg = document.getElementById("le")?.textContent || "";
-      erro.textContent = /aguarde|tentativas/i.test(msg) ? t("pub.bloqueio") : t("pub.erro");
-    }, 150);
-  });
+  // Acesso no centro da barra: entrar (login da base + ponte para a API), criar conta e provedores externos.
+  montarAcesso(raiz.querySelector(".os-pub-acesso"), { entrarComSenha, aoEntrar: entrouPeloServidor });
   raiz.querySelector(".os-mb-radar").addEventListener("click", async e => {
     const b = e.currentTarget, sim = !radarVisivel();
     await mostrarRadar(sim, abrirFicha);
@@ -305,10 +311,12 @@ function atualizarPortao() {
     if (radarVisivel()) { mostrarRadar(false); document.body.classList.remove("os-radar-on"); }
   }
 }
-function restaurarBase() {
+async function restaurarBase() {
+  if (!sessao.usuario || sessao.usuario.trocarSenha) return;
+  if (base.logada()) return;
+  await garantirLocal(sessao.usuario); // conta sem usuário local (cadastro novo, outro navegador, provedor externo)
   /* eslint-disable no-undef */
   try {
-    if (!sessao.usuario || ME) return;
     const u = S.users.find(x => x.u === sessao.usuario.username && x.on);
     if (!u) return;
     ME = u.u; S.role = u.roles[0]; S.tab = "dash"; draw();
@@ -345,8 +353,11 @@ async function iniciar() {
   await recarregarSessao();
   instalarPonteLogin(async r => { await recarregarSessao(); if (r?.must_change_password) setTimeout(() => abrirModulo("conta"), 300); });
   envolverBase();
-  restaurarBase();
+  await restaurarBase();
   atualizarPortao();
+  const ret = lerRetornoOAuth();
+  if (ret?.entrou && base.logada()) { if (ret.novo) setTimeout(() => abrirModulo("conta"), 400); }
+  else if (ret?.falha || ret?.entrou) avisoPublico(t("ac.falha." + (ret.falha || "erro")) || t("ac.falhou"));
 
   on("wm:mudou", decorarDock);
   on("i18n:idioma", () => { marcarIdioma(idiomaAtual()); montarMenus(); decorarDock(); remontarTodas(["conta", "cozinha"]); });

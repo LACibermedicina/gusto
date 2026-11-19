@@ -28,6 +28,19 @@ async function sincronizarLocal(usuario, senha, me) {
   b.sv();
 }
 
+/**
+ * Garante o usuário local da base para uma conta com sessão aberta no servidor (sem senha digitada aqui):
+ * cadastro novo, Google/X/Apple/Microsoft ou outro navegador. A senha local é aleatória e fica só neste navegador;
+ * quem manda é a sessão do servidor.
+ */
+export async function garantirLocal(usuario) {
+  const b = estadoBase(); if (!b || !Array.isArray(b.S?.users) || !usuario?.username) return;
+  if (b.S.users.some(x => x.u === usuario.username && x.on)) return;
+  const me = await api("/me").catch(() => null);
+  const senha = Array.from(crypto.getRandomValues(new Uint8Array(24)), x => x.toString(16).padStart(2, "0")).join("");
+  await sincronizarLocal(usuario.username, senha, me || { display_name: usuario.nome, roles: ["client"], is_root: usuario.root });
+}
+
 /** Envolve o go_() da base. aoEntrar(resp) é chamado após login real na API. */
 export function instalarPonteLogin(aoEntrar) {
   const original = window.go_;

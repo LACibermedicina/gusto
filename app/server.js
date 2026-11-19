@@ -46,7 +46,7 @@ async function applyEvent(name,ev){await tx(async c=>{if(!(await c.query("insert
 const webhook=async(req,res)=>{const pv=providers[req.params.provider];if(!pv)throw new E(404,"Provedor desconhecido");if(!Buffer.isBuffer(req.body)||!pv.verify(req.body,req.headers))throw new E(401,"Assinatura inválida");
  let ev;try{ev=JSON.parse(req.body.toString("utf8"))}catch{throw new E(400,"JSON inválido")}await applyEvent(pv.name,ev);res.json({ok:true})};
 const app=express();app.set("trust proxy",1);app.use(helmet({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],scriptSrc:["'self'","'unsafe-inline'","https://cdnjs.cloudflare.com"],scriptSrcAttr:["'unsafe-inline'"],styleSrc:["'self'","'unsafe-inline'"],imgSrc:["'self'","data:","blob:"],connectSrc:["'self'","https://overpass-api.de",...cspOS.connectSrc],mediaSrc:["'self'","blob:"],workerSrc:["'self'","blob:"],frameAncestors:["'none'"],objectSrc:["'none'"],...(process.env.COOKIE_SECURE=="0"?{upgradeInsecureRequests:null}:{})}}}));app.use((req,res,n)=>{res.setHeader("Permissions-Policy",PERMISSIONS_POLICY);if(process.env.AMBIENTE=="teste")res.setHeader("X-Robots-Tag","noindex, nofollow");n()});app.post("/webhooks/:provider",express.raw({type:"*/*",limit:"100kb"}),ah(webhook));app.use(express.json({limit:"100kb"}));
-app.use((req,res,n)=>req.method!="GET"&&!req.is("json")?res.status(415).json({error:"Envie JSON (proteção CSRF)"}):n());
+app.use((req,res,n)=>req.method!="GET"&&!req.is("json")&&!/^\/os-api\/oauth\/[a-z]+\/retorno$/.test(req.path)?res.status(415).json({error:"Envie JSON (proteção CSRF)"}):n());
 
 // ===== AUTENTICAÇÃO =====
 app.post("/auth/login",rateLimit({windowMs:60000,max:20}),ah(async(req,res)=>{
@@ -201,7 +201,7 @@ app.get("/calendar",A,feat("calendar"),ah(async(req,res)=>res.json((await q("sel
 app.patch("/calendar/:id",A,feat("calendar"),ah(async(req,res)=>{const[d,t,src]=cdt(req.body);const r=await q(`update calendar_entries set starts_at=${TS.replace("$4","$2").replace("$5","$3")},time_source=$5 where id=$1 and user_id=$4`,[req.params.id,d,t,req.u.id,src]);if(!r.rowCount)throw new E(404,"Entrada não encontrada");res.json({ok:true})}));
 app.delete("/calendar/:id",A,feat("calendar"),ah(async(req,res)=>{await q("delete from calendar_entries where id=$1 and user_id=$2",[req.params.id,req.u.id]);res.json({ok:true})}));
 app.get("/health",(req,res)=>res.json({ok:true}));
-montarOS(app,{q,tx,pool,A,root,feat,E,ah,au,one,sha,CKRE,BP});
+montarOS(app,{q,tx,pool,A,root,feat,E,ah,au,one,sha,CKRE,CK,BP});
 app.use(express.static(path.join(path.dirname(fileURLToPath(import.meta.url)),"public"),{maxAge:"1h"}));
 app.use((e,req,res,next)=>{if(!e.s&&e.code!="23505")console.error(e);const s=e.s||(e.code=="23505"?409:500);res.status(s).json({error:e.s?e.message:e.code=="23505"?"Registro duplicado":"Erro interno"})});
 const srv=app.listen(PORT,process.env.HOST||"127.0.0.1",()=>console.log("Gusto na porta "+PORT+(BP?" (base "+BP+")":"")));anexarWS(srv,{q,one,sha,CKRE});

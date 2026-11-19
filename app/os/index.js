@@ -1,5 +1,6 @@
 // GUSTO · camada OS v0.1.0-alpha · rotas /os-api, injeção da interface e WebSocket · by m3d.pro
 // A interface base (public/index.html) não é alterada: o servidor injeta a camada OS ao servir "/".
+import { montarContas } from "./contas.js";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
@@ -83,10 +84,13 @@ export function montarOS(app, ctx) {
   // para a interface saber que deve abrir a troca de senha.
   const talvez = ah(async (req, res, next) => {
     const m = ctx.CKRE.exec(req.headers.cookie || "");
-    req.u = m ? one(await q(`select u.id,u.username,u.display_name,u.is_root,u.must_change_password,array(select role::text from user_roles where user_id=u.id) roles
+    req.u = m ? one(await q(`select u.id,u.username,u.display_name,u.is_root,u.must_change_password,coalesce((to_jsonb(u)->>'senha_local')::boolean,true) senha_local,array(select role::text from user_roles where user_id=u.id) roles
       from sessions s join users u on u.id=s.user_id where s.token_hash=$1 and not s.revoked and s.expires_at>now() and u.is_active`, [ctx.sha(m[1])])) || null : null;
     next();
   });
+
+  // ---- cadastro aberto e entrada com Google, X, Apple ou Microsoft ----
+  montarContas(app, { ...ctx, talvez });
 
   // ---- interface: index com a camada OS ----
   const servirIndex = (req, res) => { res.setHeader("Cache-Control", "no-cache"); res.type("html").send(indexOS); };
@@ -105,7 +109,7 @@ export function montarOS(app, ctx) {
     res.json({
       versao: VERSAO, ambiente: AMBIENTE, base: BASE, idiomas: IDIOMAS, ia: iaDisponivel(), termos: VERSAO_TERMOS,
       lgpd: { controlador: process.env.LGPD_CONTROLADOR || "M3D.pro", contato: process.env.LGPD_DPO_CONTATO || null, retencaoChatDias: +(process.env.CHAT_RETENTION_DAYS || 30) },
-      usuario: req.u ? { id: req.u.id, username: req.u.username, nome: req.u.display_name, root: req.u.is_root, trocarSenha: req.u.must_change_password } : null,
+      usuario: req.u ? { id: req.u.id, username: req.u.username, nome: req.u.display_name, root: req.u.is_root, trocarSenha: req.u.must_change_password, senhaLocal: req.u.senha_local } : null,
       ice
     });
   }));

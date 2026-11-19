@@ -6,6 +6,16 @@ Fluxo: toda mudança entra pela branch `teste` (https://gusto.m3d.pro/teste/) e 
 ## [Não lançado]
 Próxima iteração (sugestão, ver `docs/ARQUITETURA.md` §8): ligar a interface base à API (login único), testes de integração com PostGIS no CI, TURN em produção.
 
+## [0.8.0-alpha] — 2026-11-19
+### Adicionado
+- **Cadastro aberto:** quem ainda não tem conta cria uma no menu de acesso (nome, usuário com checagem de disponibilidade, senha de 8+ caracteres, aceite LGPD). A conta nova recebe o papel cliente e já entra logada. `REGISTRO_ABERTO=0` fecha o cadastro.
+- **Entrar com Google, Apple, Microsoft ou X** (OAuth 2.0 / OpenID Connect com PKCE, `state` de uso único no banco e `nonce`). Na primeira entrada a conta é criada com nome e usuário sugeridos; nas seguintes, entra direto. Sem vínculo automático por e-mail. Cada provedor só aparece quando configurado (na homologação os demais aparecem apagados). Guia em `docs/CONTAS-EXTERNAS.md`. Migração `008_contas.sql` (`os_identidades`, `os_oauth_estados`, `users.senha_local`).
+- LGPD: as contas vinculadas entram na exportação e são apagadas com a conta; contas sem senha confirmam a exclusão digitando o nome de usuário.
+
+### Alterado
+- **Acesso discreto no centro da barra superior:** uma pílula "Entrar · Criar conta" abre um painel logo abaixo, com abas, botões dos provedores e o formulário. As bandeiras ficam à direita. No celular a pílula mostra só "Entrar".
+- A interface base entra sozinha quando já existe sessão no servidor (cadastro novo, provedor externo, outro navegador).
+
 ## [0.7.1-alpha] — 2026-11-19
 ### Corrigido
 - Depois de um deploy, o navegador podia continuar usando dicionários de idioma antigos do cache e mostrar chaves cruas (ex.: "pub.titulo"). Os arquivos da camada OS (`/os/*`) agora são sempre revalidados (`Cache-Control: no-cache` + ETag), e os dicionários são buscados com `cache: "no-cache"`.

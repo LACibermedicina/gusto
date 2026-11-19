@@ -19,7 +19,7 @@ export const privacidade = ({ abrirConta }) => ({
       ${cons ? `<fieldset>${FINALIDADES.map(f => `<label class="os-chave"><input type="checkbox" data-f="${f}" ${cons[f]?.concedido ? "checked" : ""}><span data-t="lgpd.f.${f}"></span>${cons[f]?.em ? `<small class="os-mu">${new Date(cons[f].em).toLocaleDateString()}</small>` : ""}</label>`).join("")}</fieldset>
         <a class="os-btn" href="${url("/os-api/lgpd/exportar")}" download data-t="lgpd.exportar"></a>
         <details class="os-perigo"><summary data-t="lgpd.excluir"></summary><p class="os-mu" data-t="lgpd.excluirTexto"></p>
-          <form><input name="s" type="password" autocomplete="current-password" required data-t-ph="conta.senha"><input name="c" required data-t-ph="lgpd.confirme" pattern="EXCLUIR"><button class="os-btn os-btn-r" data-t="lgpd.excluir"></button><p class="os-erro" role="alert"></p></form></details>`
+          <form>${sessao.usuario?.senhaLocal === false ? `<input name="s" required autocomplete="off" autocapitalize="none" data-t-ph="lgpd.digiteUsuario">` : `<input name="s" type="password" autocomplete="current-password" required data-t-ph="conta.senha">`}<input name="c" required data-t-ph="lgpd.confirme" pattern="EXCLUIR"><button class="os-btn os-btn-r" data-t="lgpd.excluir"></button><p class="os-erro" role="alert"></p></form></details>`
       : `<button class="os-btn os-btn-p os-ent" data-t="conta.entrar"></button>`}
       <hr><b data-t="lgpd.local"></b><p class="os-mu os-peq" data-t="lgpd.localTexto"></p>
       <button class="os-btn os-limpar" data-t="lgpd.limparLocal"></button>
