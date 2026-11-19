@@ -6,6 +6,17 @@ Fluxo: toda mudança entra pela branch `teste` (https://gusto.m3d.pro/teste/) e 
 ## [Não lançado]
 Próxima iteração (sugestão, ver `docs/ARQUITETURA.md` §8): ligar a interface base à API (login único), testes de integração com PostGIS no CI, TURN em produção.
 
+## [0.2.0-alpha] — 2026-11-18
+Portal público e portão de login.
+
+### Adicionado
+- **Portão de login:** antes de entrar, nada do Gusto OS aparece (barra, ícones, menu, avatar, janelas, dock e controles do mapa da base ficam ocultos). Só a tela de login e, abaixo, o portal público. Ao recarregar a página com a sessão válida, a interface base é reaberta sem pedir senha; ao sair da base, a sessão da API também é encerrada e as janelas são fechadas.
+- **Portal de fichas técnicas** em estilo portal de notícias (destaque + grade), sem login: cada card mostra a faixa escura com o nome em caixa alta e "| FICHA COGNITIVA DE EXECUÇÃO E TÉCNICA CLÁSSICA", os 4 quadrantes, categoria, resumo e metadados; abre a ficha completa.
+- **Infográfico em 4 quadrantes** (padrão alta gastronomia): A cabeçalho escuro; B físico-química com linha do tempo de 4 etapas + alerta crítico; C apoio de praça (perfil sensorial, insumos/proporções, defeitos, ação corretiva); D fluxograma com bifurcação, testes confirmatórios e emplatamento; E segredos do chef, referências e glossário. 18 ícones 3D semânticos (termômetro, chama, balança, gota, faca, molécula, colher…).
+- 5 fichas originais semeadas: Molho Béarnaise (destaque), Risotto alla Milanese, Magret de Pato Sous-Vide, Massa Folhada Clássica, Fundo Escuro de Vitela.
+- **Agente gerador** (`app/os/prompt-infografico.js`): prompt de Chef Executivo/ciência dos alimentos com saída JSON validada (`infografico-esquema.js`); gera **rascunho** que o admin revisa, publica e destaca na janela **Fichas** (funcionalidade `infograficos`).
+- Migração `005_infograficos.sql`; rotas públicas `/os-api/publico/infograficos` (só publicados, sem autoria); 3 testes novos (14 no total).
+
 ## [0.1.3-alpha] — 2026-11-18
 ### Corrigido
 - **Login único (ponte):** a tela "Entrar no Gusto" da interface base agora aceita a conta do servidor. O root da base tinha uma senha embutida desconhecida; com a ponte, `root` + `GUSTO_ROOT_PASSWORD` entra na interface base e no Gusto OS ao mesmo tempo, e a janela **Conta** abre pedindo a troca da senha inicial.

@@ -9,6 +9,7 @@ import rateLimit from "express-rate-limit";
 import { gerar, iaDisponivel, iaStatus, extrairJSON } from "./ia.js";
 import { mascarar, restaurar, hashTexto, consentimentos, temConsentimento, exportar, eliminar, VERSAO_TERMOS, FINALIDADES } from "./privacidade.js";
 import { anexarWS } from "./ws.js";
+import { montarInfograficos, semearInfograficos } from "./infograficos.js";
 
 export { anexarWS };
 
@@ -102,7 +103,7 @@ export function montarOS(app, ctx) {
     res.json({
       versao: VERSAO, ambiente: AMBIENTE, base: BASE, idiomas: IDIOMAS, ia: iaDisponivel(), termos: VERSAO_TERMOS,
       lgpd: { controlador: process.env.LGPD_CONTROLADOR || "M3D.pro", contato: process.env.LGPD_DPO_CONTATO || null, retencaoChatDias: +(process.env.CHAT_RETENTION_DAYS || 30) },
-      usuario: req.u ? { id: req.u.id, nome: req.u.display_name, root: req.u.is_root, trocarSenha: req.u.must_change_password } : null,
+      usuario: req.u ? { id: req.u.id, username: req.u.username, nome: req.u.display_name, root: req.u.is_root, trocarSenha: req.u.must_change_password } : null,
       ice
     });
   }));
@@ -115,6 +116,10 @@ export function montarOS(app, ctx) {
   }));
 
   app.get(P + "/ia/status", A, ctx.root, (req, res) => res.json(iaStatus()));
+
+  // ---- infográficos: portal público + geração/publicação ----
+  montarInfograficos(app, { q, A, E, ah, au, one, P, can });
+  semearInfograficos(q).catch(e => console.error("semente de infográficos:", e.message));
 
   // ---- tradução contextual por IA ----
   // Pública (a tela de login também é traduzida), com limite por IP e consentimento explícito do cliente.

@@ -114,3 +114,38 @@ test("i18n: toda chave usada no front existe no dicionário", () => {
   for (const tipo of ["receitas", "pedidos", "agenda", "carteira", "mapa", "comunidade", "assistente", "pagamentos", "nota", "dado"]) assert.ok(`grafo.t.${tipo}` in pt, tipo);
   assert.deepEqual(faltam, []);
 });
+
+// ---------------- infográficos ----------------
+import { validarInfografico, slugificar, ICONES } from "../app/os/infografico-esquema.js";
+import { SEMENTE } from "../app/os/infograficos-semente.js";
+import { SISTEMA_INFOGRAFICO } from "../app/os/prompt-infografico.js";
+
+test("infográficos semeados cumprem o padrão (cabeçalho + 4 quadrantes + referências + glossário)", () => {
+  assert.ok(SEMENTE.length >= 5);
+  assert.equal(SEMENTE.filter(s => s.destaque).length, 1, "um destaque para o portal");
+  for (const s of SEMENTE) {
+    const d = validarInfografico(s);
+    assert.equal(s.slug, slugificar(s.slug));
+    assert.equal(d.fisicoQuimica.etapas.length, 4, s.slug);
+    for (const e of [...d.fisicoQuimica.etapas, d.fisicoQuimica.alerta]) assert.ok(ICONES.includes(e.icone), `${s.slug}: ícone ${e.icone}`);
+    assert.ok(d.praca.sensorial.length && d.praca.insumos.length && d.praca.defeitos.length && d.praca.correcao.length, s.slug);
+    assert.ok(d.fluxo.ok.passos.length >= 2 && d.fluxo.desvio.passos.length >= 2, s.slug);
+    assert.ok(d.segredos.referencias.length >= 2 && d.segredos.glossario.length >= 3, s.slug);
+    assert.match(JSON.stringify(d), /°C|°/, `${s.slug}: sem temperatura explícita`);
+  }
+});
+
+test("infográfico incompleto da IA é recusado; ícone desconhecido cai no padrão", () => {
+  const base = structuredClone(SEMENTE[0]);
+  base.fisicoQuimica.etapas.pop();
+  assert.throws(() => validarInfografico(base), /exatamente 4 etapas/);
+  const outro = structuredClone(SEMENTE[0]);
+  outro.fisicoQuimica.etapas[0].icone = "unicornio";
+  assert.equal(validarInfografico(outro).fisicoQuimica.etapas[0].icone, "balanca");
+  const semRef = structuredClone(SEMENTE[0]); semRef.segredos.referencias = ["só uma"];
+  assert.throws(() => validarInfografico(semRef), /referências/);
+});
+
+test("prompt do agente exige JSON, referências clássicas e não inventar edições", () => {
+  for (const k of ["Escoffier", "Larousse", "Paul Bocuse", "McGee", "RDC", "JSON", "Não invente"]) assert.ok(SISTEMA_INFOGRAFICO.includes(k), k);
+});

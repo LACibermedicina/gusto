@@ -1,7 +1,7 @@
 // GUSTO · camada OS v0.1.0-alpha · inicialização: barra superior, bandeiras, mesa com ícones, menu lateral · by m3d.pro
 import { AMBIENTE, VERSAO, pref, on, h } from "./api.js";
 import { IDIOMAS, BANDEIRAS, t, definirIdioma, aplicarEstatico, idiomaAtual, definirConsentimentoIA, consentimentoIAPerguntado } from "./i18n.js";
-import { iniciarWM, abrir, abertas, focar, estaAberta, remontarTodas } from "./wm.js";
+import { iniciarWM, abrir, abertas, focar, estaAberta, remontarTodas, fechar } from "./wm.js";
 import { icone } from "./icones.js";
 import { sessao, recarregarSessao, pode } from "./sessao.js";
 import { conta } from "./mods/conta.js";
@@ -12,12 +12,16 @@ import { privacidade } from "./mods/privacidade.js";
 import { sobre } from "./mods/sobre.js";
 import { iniciarAvatar, alternarAvatar } from "./mods/avatar.js";
 import { instalarPonteLogin } from "./ponte.js";
+import { mostrarPortal, esconderPortal } from "./portal.js";
+import { infograficos } from "./mods/infograficos.js";
+import { api } from "./api.js";
 
 // Registro de módulos: id, fábrica da janela e funcionalidade exigida (RBAC por usuário no servidor).
 const MODULOS = [
   { id: "grafo", fab: grafo, feat: "os_graph" },
   { id: "notas", fab: notas, feat: "notes" },
   { id: "comunidade", fab: comunidade, feat: "chat" },
+  { id: "infograficos", fab: infograficos },
   { id: "assistente", feat: "avatar", acao: () => alternarAvatar(ctx) },
   { id: "privacidade", fab: privacidade },
   { id: "sobre", fab: sobre },
@@ -157,7 +161,45 @@ function boasVindas() {
   });
 }
 
+// ---------------- Portão de login ----------------
+// Antes do login nada do Gusto OS aparece: só a tela de login da base e o portal público de fichas.
+// "Logado" = sessão real na API + usuário ativo na interface base (a ponte mantém os dois juntos).
+const baseLogada = () => { try { return !!ME; } catch { return false; } }; // eslint-disable-line no-undef
+let jaEntrou = false;
+function atualizarPortao() {
+  const logado = !!(sessao.usuario && baseLogada());
+  document.body.classList.toggle("os-deslogado", !logado);
+  if (logado) {
+    esconderPortal();
+    if (!jaEntrou) { jaEntrou = true; iniciarAvatar(ctx); boasVindas(); }
+  } else {
+    if (jaEntrou) { abertas().forEach(j => fechar(j.id)); fecharLateral(); jaEntrou = false; document.getElementById("os-avatar")?.remove(); }
+    mostrarPortal();
+  }
+}
+/** Recarregou a página com a sessão da API válida: reabre a interface base sem pedir a senha de novo. */
+function restaurarBase() {
+  try {
+    if (!sessao.usuario || ME) return; // eslint-disable-line no-undef
+    const u = S.users.find(x => x.u === sessao.usuario.username && x.on); // eslint-disable-line no-undef
+    if (!u) return;
+    ME = u.u; S.role = u.roles[0]; S.tab = "dash"; draw(); // eslint-disable-line no-undef
+  } catch { /* base indisponível */ }
+}
+function envolverBase() {
+  const d = window.draw, l = window.logout;
+  if (typeof d === "function" && !d.__os) { window.draw = Object.assign(function (...a) { const r = d.apply(this, a); atualizarPortao(); return r; }, { __os: true }); }
+  if (typeof l === "function" && !l.__os) {
+    window.logout = Object.assign(function (...a) {
+      api("/auth/logout", { metodo: "POST", corpo: {} }).catch(() => {}).finally(() => recarregarSessao());
+      return l.apply(this, a);
+    }, { __os: true });
+  }
+}
+
 async function iniciar() {
+  document.body.classList.add("os-deslogado");
+  mostrarPortal();
   montarChrome();
   iniciarWM();
   const preferido = pref.get("idioma", "pt"); // português por padrão; a troca é sempre escolha explícita do usuário
@@ -166,7 +208,10 @@ async function iniciar() {
   await recarregarSessao();
   atualizarCadeados();
   // "Entrar no Gusto" (interface base) também aceita a conta do servidor.
-  instalarPonteLogin(async r => { await recarregarSessao(); if (r?.must_change_password) abrirModulo("conta"); });
+  instalarPonteLogin(async r => { await recarregarSessao(); if (r?.must_change_password) setTimeout(() => abrirModulo("conta"), 300); });
+  envolverBase();
+  restaurarBase();
+  atualizarPortao();
 
   on("wm:mudou", atualizarAbertas);
   on("i18n:idioma", () => { atualizarAbertas(); marcarIdioma(idiomaAtual()); remontarTodas(["conta"]); }); // datas/rótulos com locale do novo idioma
@@ -178,12 +223,11 @@ async function iniciar() {
   let ultimo = JSON.stringify(sessao.usuario);
   on("sessao:mudou", () => {
     atualizarCadeados();
+    atualizarPortao();
     const agora = JSON.stringify(sessao.usuario);
     if (agora !== ultimo) { ultimo = agora; remontarTodas(["conta"]); }
   });
 
-  iniciarAvatar(ctx);
-  boasVindas();
   document.documentElement.classList.add("os-pronto");
 }
 

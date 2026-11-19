@@ -2,7 +2,7 @@
 
 Plataforma para trocar receitas, pedir preparo, alugar espaços e itens e entregar com rastreio por código — agora com a **camada Gusto OS**: janelas estilo macOS, ícones 3D, tradução por IA em 5 idiomas, grafo de funcionalidades, notas da agenda, comunidade com vídeo e um mascote 3D assistente.
 
-**Versão:** `0.1.3-alpha` · [CHANGELOG](CHANGELOG.md) · [Arquitetura](docs/ARQUITETURA.md) · [LGPD](docs/LGPD.md) · Manuais da app base em [`docs/manuais/`](docs/manuais/)
+**Versão:** `0.2.0-alpha` · [CHANGELOG](CHANGELOG.md) · [Arquitetura](docs/ARQUITETURA.md) · [LGPD](docs/LGPD.md) · Manuais da app base em [`docs/manuais/`](docs/manuais/)
 
 | Ambiente | Branch | Endereço | Na VPS |
 |---|---|---|---|

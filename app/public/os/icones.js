@@ -43,6 +43,13 @@ const GLIFOS = {
     <path d="M32 9 L49 15 V30 C49 41 41 48 32 52" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
     <path d="M26 31v-5a6 6 0 0 1 12 0v5" fill="none" stroke="#fff3bf" stroke-width="3.4" stroke-linecap="round"/>
     <rect x="22" y="30" width="20" height="15" rx="4" fill="url(#${p}g)"/><circle cx="32" cy="37" r="2.4" fill="#7a5200"/>${brilho(24, 15, 6, 2.2)}`,
+  infograficos: p => `<defs><linearGradient id="${p}c" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5c2333"/><stop offset="1" stop-color="#2b0f18"/></linearGradient>${esfera(p + "h", "#ffffff", "#dfe3ea")}</defs>
+    ${sombra(32, 58, 20)}
+    <rect x="10" y="14" width="44" height="40" rx="6" fill="#fffdf7" stroke="#d8c3a0"/>
+    <rect x="10" y="14" width="44" height="11" rx="6" fill="url(#${p}c)"/><rect x="15" y="18" width="22" height="3" rx="1.5" fill="#fff"/>
+    <g fill="#ffd8a8"><rect x="14" y="29" width="17" height="10" rx="2"/><rect x="33" y="29" width="17" height="10" rx="2"/></g>
+    <g fill="#c5f6fa"><rect x="14" y="41" width="17" height="10" rx="2"/><rect x="33" y="41" width="17" height="10" rx="2"/></g>
+    <g fill="url(#${p}h)"><circle cx="44" cy="10" r="5"/><circle cx="50" cy="8" r="5.5"/><circle cx="56" cy="10" r="5"/><rect x="43" y="10" width="14" height="5" rx="2"/></g>`,
   sobre: p => `<defs>${esfera(p + "a", "#91a7ff", "#3b5bdb")}</defs>
     ${sombra(32, 58, 18)}<circle cx="32" cy="31" r="21" fill="url(#${p}a)"/>${brilho(24, 20, 7, 3)}
     <circle cx="32" cy="21" r="3.6" fill="#fff"/><rect x="28.5" y="28" width="7" height="17" rx="3.5" fill="#fff"/>`,
@@ -53,7 +60,7 @@ const GLIFOS = {
 
 export const CORES = {
   grafo: ["#fff4e6", "#ffd8a8"], notas: ["#fff9db", "#ffe8a3"], comunidade: ["#e7f5ff", "#a5d8ff"],
-  assistente: ["#fff0f6", "#ffc9de"], privacidade: ["#ebfbee", "#b2f2bb"], sobre: ["#edf2ff", "#bac8ff"], conta: ["#fff4e6", "#ffc078"]
+  assistente: ["#fff0f6", "#ffc9de"], infograficos: ["#fff5f5", "#e9b8c2"], privacidade: ["#ebfbee", "#b2f2bb"], sobre: ["#edf2ff", "#bac8ff"], conta: ["#fff4e6", "#ffc078"]
 };
 
 let seq = 0;
