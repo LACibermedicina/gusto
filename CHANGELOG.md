@@ -6,6 +6,12 @@ Fluxo: toda mudança entra pela branch `teste` (https://gusto.m3d.pro/teste/) e 
 ## [Não lançado]
 Próxima iteração (sugestão, ver `docs/ARQUITETURA.md` §8): ligar a interface base à API (login único), testes de integração com PostGIS no CI, TURN em produção.
 
+## [0.4.0-alpha] — 2026-11-19
+### Adicionado
+- **Painel simplificado de entrada nas receitas:** ao abrir um card, aparece primeiro a receita direta — cabeçalho com categoria, nome, resumo, tempo, rendimento e nível; **Ingredientes** com quantidades (lista de mise en place com marcação) e **Modo de preparo** em passos numerados, com o ponto de atenção crítico em destaque. O botão **Detalhes avançados** abre a ficha técnica de 4 quadrantes (e "Voltar ao modo simples" retorna). Vale no portal público e na janela Fichas.
+- As 5 fichas semeadas ganharam ingredientes e modo de preparo; fichas já gravadas recebem só esse bloco no próximo início (edições preservadas).
+- O agente de IA passa a gerar também o bloco `simples` (obrigatório para novos rascunhos). Os cards do portal indicam "Ingredientes e modo de preparo · Detalhes avançados".
+
 ## [0.3.1-alpha] — 2026-11-19
 ### Adicionado
 - **Publicação automática no Mac** (`deploy/mac/`): agente do `launchd` que observa `~/m3d/entregas`; cada pacote `gusto-*.bundle` que chega é conferido, aplicado na branch `teste` (fast-forward, ou junção sem conflito quando o GitHub recebeu outra mudança, como um PR do Dependabot) e enviado com `git push`, com notificação do macOS e histórico em `~/Library/Logs/gusto-publicar.log`. Instalação única: `bash deploy/mac/instalar.sh` (cria a cópia de trabalho em `~/m3d/gusto`, fora das pastas protegidas do macOS).

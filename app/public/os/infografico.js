@@ -45,3 +45,43 @@ export function renderInfografico(d) {
   ${sg.glossario?.length ? `<footer class="ig-glos"><b>Glossário:</b> ${sg.glossario.map(g => `<span><b>${h(g.termo)}</b> – ${h(g.definicao)}</span>`).join(" · ")}</footer>` : ""}
 </article>`;
 }
+
+/** Painel simplificado de entrada: ingredientes + modo de preparo, com botão para os detalhes avançados. */
+export function renderSimples(d) {
+  const s = d.simples;
+  return `<article class="fx-simples" aria-label="${h(d.titulo)} — receita">
+  <header class="ig-cab fx-cab">
+    <div><p class="fx-kicker">${h(d.categoria || "")}</p><h2>${h(d.titulo.toUpperCase())}</h2><p>${h(d.resumo || "")}</p></div>
+    <dl class="ig-meta">${d.tempo ? `<div><dt>Tempo</dt><dd>${h(d.tempo)}</dd></div>` : ""}${d.rendimento ? `<div><dt>Rendimento</dt><dd>${h(d.rendimento)}</dd></div>` : ""}${d.nivel ? `<div><dt>Nível</dt><dd>${h(d.nivel)}</dd></div>` : ""}</dl>
+  </header>
+  <div class="fx-grade">
+    <section class="fx-ing"><h3>${ic("balanca", "Ingredientes")}Ingredientes</h3>
+      <ul>${s.ingredientes.map((i, k) => `<li><label><input type="checkbox" data-k="${k}"><span class="fx-qtd">${h(i.qtd)}</span><span>${h(i.item)}</span></label></li>`).join("")}</ul>
+      <p class="fx-dica">Marque os itens conforme separa a mise en place.</p></section>
+    <section class="fx-prep"><h3>${ic("panela", "Modo de preparo")}Modo de preparo</h3>
+      <ol>${s.preparo.map(p => `<li><span>${h(p)}</span></li>`).join("")}</ol>
+      ${d.fisicoQuimica?.alerta ? `<div class="fx-atencao">${ic("alerta", "Atenção")}<div><b>Ponto de atenção: ${h(d.fisicoQuimica.alerta.titulo)}</b><p>${h(d.fisicoQuimica.alerta.texto)}</p></div></div>` : ""}</section>
+  </div>
+  <footer class="fx-rodape"><button class="fx-alternar" type="button" aria-expanded="false">${ic("molecula", "")}<span><b>Detalhes avançados</b><small>Ficha técnica em 4 quadrantes: físico-química, praça, fluxograma, segredos do chef e referências</small></span><i aria-hidden="true">›</i></button></footer>
+</article>`;
+}
+
+/** Ficha completa: começa no painel simplificado; "Detalhes avançados" mostra o infográfico de 4 quadrantes. */
+export function renderFicha(d) {
+  if (!d.simples) return renderInfografico(d);
+  return `<div class="fx">${renderSimples(d)}<div class="fx-avancado" hidden>
+    <button class="fx-voltar" type="button">‹ Voltar ao modo simples</button>${renderInfografico(d)}</div></div>`;
+}
+
+/** Liga os botões de alternância de uma ficha já inserida no DOM. */
+export function ligarFicha(raiz) {
+  const fx = raiz.querySelector(".fx"); if (!fx) return;
+  const simples = fx.querySelector(".fx-simples"), av = fx.querySelector(".fx-avancado"), bt = fx.querySelector(".fx-alternar");
+  const mostrar = adv => {
+    simples.hidden = adv; av.hidden = !adv; bt.setAttribute("aria-expanded", String(adv));
+    (adv ? av : simples).scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  };
+  bt.addEventListener("click", () => mostrar(true));
+  fx.querySelector(".fx-voltar").addEventListener("click", () => mostrar(false));
+  fx.querySelectorAll(".fx-ing input").forEach(c => c.addEventListener("change", () => c.closest("li").classList.toggle("fx-ok", c.checked)));
+}

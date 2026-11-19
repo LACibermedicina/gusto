@@ -1,12 +1,12 @@
 // GUSTO · portal público (antes do login): fichas de receitas em estilo portal de notícias · by m3d.pro
 import { api, h } from "./api.js";
-import { renderInfografico } from "./infografico.js";
+import { renderFicha, ligarFicha } from "./infografico.js";
 import { iconeCozinha as ic } from "./icones-cozinha.js";
 
 let raiz = null, cartoes = null;
 
 function cartao(c, grande = false) {
-  return `<article class="pt-card${grande ? " pt-hero" : ""}" tabindex="0" role="link" data-slug="${h(c.slug)}" aria-label="Abrir ficha: ${h(c.titulo)}">
+  return `<article class="pt-card${grande ? " pt-hero" : ""}" tabindex="0" role="link" data-slug="${h(c.slug)}" aria-label="Abrir receita: ${h(c.titulo)}">
     <div class="pt-faixa"><h3>${h(c.titulo.toUpperCase())}</h3><small>| FICHA COGNITIVA DE EXECUÇÃO E TÉCNICA CLÁSSICA</small></div>
     <div class="pt-quad" aria-hidden="true">
       <span>${ic("molecula")}<i>Físico-química</i></span><span>${ic("sensorial")}<i>Praça</i></span>
@@ -15,7 +15,8 @@ function cartao(c, grande = false) {
     <div class="pt-txt"><p class="pt-cat">${h(c.categoria)}</p><p class="pt-res">${h(c.resumo)}</p>
       ${grande && c.etapas ? `<ol class="pt-linha">${c.etapas.map((e, i) => `<li>${ic(e.icone, e.titulo)}<span>${i + 1}. ${h(e.titulo)}</span></li>`).join("")}</ol>${c.alerta ? `<p class="pt-alerta">⚠ <b>${h(c.alerta)}</b></p>` : ""}${c.sensorial ? `<div class="pt-duas"><div><p class="pt-cat">Perfil sensorial ideal</p><ul>${c.sensorial.map(x => `<li>${h(x)}</li>`).join("")}</ul></div>${c.dica ? `<div><p class="pt-cat">Segredo do chef</p><p>★ ${h(c.dica)}</p></div>` : ""}</div>` : ""}` : ""}
       <p class="pt-meta">${c.tempo ? `⏱ ${h(c.tempo)}` : ""}${c.nivel ? ` · ${h(c.nivel)}` : ""}${c.contextoAlvo ? ` · ${h(c.contextoAlvo)}` : ""}</p>
-      <span class="pt-ler">Ler ficha completa →</span></div>
+      <p class="pt-modos"><span>🧾 Ingredientes e modo de preparo</span><span>⚙ Detalhes avançados</span></p>
+      <span class="pt-ler">Ver receita →</span></div>
   </article>`;
 }
 
@@ -30,7 +31,9 @@ async function abrirFicha(slug) {
   m.addEventListener("click", e => { if (e.target === m || e.target.closest(".ig-fechar")) fechar(); });
   try {
     const d = await api(`/os-api/publico/infograficos/${encodeURIComponent(slug)}`);
-    m.querySelector(".ig-modal-caixa").innerHTML = `<button class="ig-fechar" aria-label="Fechar">×</button>${renderInfografico(d)}`;
+    const caixa = m.querySelector(".ig-modal-caixa");
+    caixa.innerHTML = `<button class="ig-fechar" aria-label="Fechar">×</button>${renderFicha(d)}`;
+    ligarFicha(caixa);
     m.querySelector(".ig-fechar").focus();
   } catch (e) { m.querySelector(".ig-modal-caixa p").textContent = e.message; }
 }

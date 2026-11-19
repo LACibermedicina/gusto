@@ -16,6 +16,10 @@ Escreva em português do Brasil. Responda SOMENTE com um objeto JSON neste forma
  "categoria": "categoria curta (ex.: Molhos e emulsões)",
  "resumo": "1–2 frases para o card do portal (≤ 280 caracteres)",
  "tempo": "tempo total", "rendimento": "rendimento", "nivel": "Básico|Intermediário|Avançado",
+ "simples": {   // painel de entrada, para quem só quer cozinhar
+   "ingredientes": [2–25 objetos {"qtd": "quantidade com unidade (g, mL, unid., Q.B.)", "item": "ingrediente e corte"}],
+   "preparo": [2–15 passos curtos e imperativos, na ordem, com tempos e temperaturas essenciais]
+ },
  "fisicoQuimica": {
    "etapas": [4 objetos {"titulo","texto","icone"} na ordem: Insumos base/proporção → Ação mecânica ou térmica → Reação físico-química → Textura/ponto final],
    "alerta": {"titulo","texto","icone"}  // limite crítico: desnaturação proteica, ponto de fumaça, janela de emulsificação etc.

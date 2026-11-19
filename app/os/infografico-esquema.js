@@ -23,6 +23,16 @@ const icone = (v, padrao) => (ICONES.includes(v) ? v : padrao);
 export const slugificar = s => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
   .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "infografico";
 
+/** Painel simplificado: ingredientes com quantidade + modo de preparo em passos curtos. Opcional em fichas antigas. */
+export function validarSimples(v, obrigatorio = false) {
+  if (!v) { if (obrigatorio) throw erro("Painel simplificado obrigatório (ingredientes e modo de preparo)"); return null; }
+  if (!Array.isArray(v.ingredientes)) throw erro("Painel simplificado: lista de ingredientes");
+  const ingredientes = v.ingredientes.map(i => ({ qtd: txt(i?.qtd, 40, "quantidade", false), item: txt(i?.item, 120, "ingrediente", false) }))
+    .filter(i => i.item).slice(0, 25);
+  if (ingredientes.length < 2) throw erro("Painel simplificado: mínimo de 2 ingredientes");
+  return { ingredientes, preparo: lista(v.preparo, 2, 15, 280, "modo de preparo") };
+}
+
 /** Valida e normaliza um infográfico. Lança erro 400 com a primeira falha encontrada. */
 export function validarInfografico(d) {
   if (!d || typeof d !== "object") throw erro("Infográfico inválido");
@@ -38,6 +48,7 @@ export function validarInfografico(d) {
     tempo: txt(d.tempo, 40, "tempo", false),
     rendimento: txt(d.rendimento, 40, "rendimento", false),
     nivel: txt(d.nivel, 30, "nivel", false),
+    simples: validarSimples(d.simples),
     fisicoQuimica: {
       etapas: fq.etapas.map((e, i) => ({ titulo: txt(e.titulo, 50, `etapa ${i + 1}`), texto: txt(e.texto, 320, `etapa ${i + 1}`), icone: icone(e.icone, padraoEtapa[i]) })),
       alerta: { titulo: txt(fq.alerta?.titulo, 60, "alerta crítico"), texto: txt(fq.alerta?.texto, 360, "alerta crítico"), icone: icone(fq.alerta?.icone, "termometro") }

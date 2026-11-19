@@ -2,7 +2,7 @@
 import { api, h } from "../api.js";
 import { aplicarEstatico } from "../i18n.js";
 import { sessao, pode } from "../sessao.js";
-import { renderInfografico } from "../infografico.js";
+import { renderFicha, ligarFicha } from "../infografico.js";
 
 const CONTEXTOS = ["Praça de cozinha quente em serviço de alta demanda", "Aula prática de técnicas clássicas", "Estudo para concursos de gastronomia", "Ficha técnica operacional"];
 
@@ -34,10 +34,11 @@ export const infograficos = () => ({
             : atual ? `${gestor ? `<div class="igm-acoes">
                 <button class="os-btn igm-pub">${atual.publicado ? "Despublicar" : "Publicar no portal"}</button>
                 <button class="os-btn igm-dest">${atual.destaque ? "Tirar destaque" : "Destacar"}</button>
-                <button class="os-btn os-btn-r igm-del">Excluir</button></div>` : ""}${renderInfografico(atual)}`
+                <button class="os-btn os-btn-r igm-del">Excluir</button></div>` : ""}${renderFicha(atual)}`
             : `<div class="os-vazio">📚<p>Escolha uma ficha.</p></div>`}
         </section></div>`;
       aplicarEstatico(corpo);
+      ligarFicha(corpo);
       corpo.querySelectorAll(".igm-item").forEach(b => (b.onclick = () => abrir(b.dataset.s).catch(e => desenhar(e.message))));
       corpo.querySelector(".igm-novo")?.addEventListener("click", () => { atual = "novo"; desenhar(); });
       const f = corpo.querySelector(".igm-form");

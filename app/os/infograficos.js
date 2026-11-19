@@ -1,6 +1,6 @@
 // GUSTO · rotas dos infográficos: portal público (antes do login) + geração por IA e publicação (admin) · by m3d.pro
 import rateLimit from "express-rate-limit";
-import { validarInfografico, slugificar } from "./infografico-esquema.js";
+import { validarInfografico, validarSimples, slugificar } from "./infografico-esquema.js";
 import { SISTEMA_INFOGRAFICO, pedidoInfografico } from "./prompt-infografico.js";
 import { SEMENTE } from "./infograficos-semente.js";
 import { gerar, iaDisponivel, extrairJSON } from "./ia.js";
@@ -11,6 +11,9 @@ export async function semearInfograficos(q) {
     const c = validarInfografico(s);
     await q(`insert into infograficos(slug,titulo,categoria,conteudo,publicado,destaque,origem) values($1,$2,$3,$4,true,$5,'equipe')
              on conflict(slug) do nothing`, [s.slug, c.titulo, c.categoria, c, !!s.destaque]);
+    // Fichas criadas antes do painel simplificado recebem só esse bloco (o resto, se editado, é preservado).
+    if (c.simples) await q(`update infograficos set conteudo = conteudo || jsonb_build_object('simples', $2::jsonb)
+             where slug=$1 and coalesce(conteudo->'simples','null'::jsonb) = 'null'::jsonb`, [s.slug, JSON.stringify(c.simples)]);
   }
 }
 
@@ -56,6 +59,7 @@ export function montarInfograficos(app, { q, A, E, ah, au, one, P, can }) {
     try {
       const { texto } = await gerar({ sistema: SISTEMA_INFOGRAFICO, usuario: pedidoInfografico({ prato, contexto, referencias }), json: true, maxTokens: 4000 });
       dados = validarInfografico({ ...extrairJSON(texto), contextoAlvo: contexto });
+      if (!dados.simples) validarSimples(null, true);
     } catch (e) {
       throw new E(e.s === 400 ? 422 : e.s || 502, e.s === 400 ? "A IA devolveu um infográfico incompleto: " + e.message + ". Tente de novo." : e.message);
     }

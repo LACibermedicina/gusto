@@ -132,6 +132,8 @@ test("infográficos semeados cumprem o padrão (cabeçalho + 4 quadrantes + refe
     assert.ok(d.fluxo.ok.passos.length >= 2 && d.fluxo.desvio.passos.length >= 2, s.slug);
     assert.ok(d.segredos.referencias.length >= 2 && d.segredos.glossario.length >= 3, s.slug);
     assert.match(JSON.stringify(d), /°C|°/, `${s.slug}: sem temperatura explícita`);
+    assert.ok(d.simples && d.simples.ingredientes.length >= 2 && d.simples.preparo.length >= 2, `${s.slug}: painel simplificado`);
+    assert.ok(d.simples.ingredientes.every(i => i.qtd), `${s.slug}: ingrediente sem quantidade`);
   }
 });
 
@@ -147,5 +149,5 @@ test("infográfico incompleto da IA é recusado; ícone desconhecido cai no padr
 });
 
 test("prompt do agente exige JSON, referências clássicas e não inventar edições", () => {
-  for (const k of ["Escoffier", "Larousse", "Paul Bocuse", "McGee", "RDC", "JSON", "Não invente"]) assert.ok(SISTEMA_INFOGRAFICO.includes(k), k);
+  for (const k of ["Escoffier", "Larousse", "Paul Bocuse", "McGee", "RDC", "JSON", "Não invente", "\"simples\"", "ingredientes", "preparo"]) assert.ok(SISTEMA_INFOGRAFICO.includes(k), k);
 });
