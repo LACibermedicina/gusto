@@ -6,6 +6,10 @@ Fluxo: toda mudança entra pela branch `teste` (https://gusto.m3d.pro/teste/) e 
 ## [Não lançado]
 Próxima iteração (sugestão, ver `docs/ARQUITETURA.md` §8): ligar a interface base à API (login único), testes de integração com PostGIS no CI, TURN em produção.
 
+## [0.3.1-alpha] — 2026-11-19
+### Adicionado
+- **Publicação automática no Mac** (`deploy/mac/`): agente do `launchd` que observa `~/m3d/entregas`; cada pacote `gusto-*.bundle` que chega é conferido, aplicado na branch `teste` (fast-forward, ou junção sem conflito quando o GitHub recebeu outra mudança, como um PR do Dependabot) e enviado com `git push`, com notificação do macOS e histórico em `~/Library/Logs/gusto-publicar.log`. Instalação única: `bash deploy/mac/instalar.sh` (cria a cópia de trabalho em `~/m3d/gusto`, fora das pastas protegidas do macOS).
+
 ## [0.3.0-alpha] — 2026-11-19
 Reorganização da interface no padrão macOS.
 

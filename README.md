@@ -2,7 +2,7 @@
 
 Plataforma para trocar receitas, pedir preparo, alugar espaços e itens e entregar com rastreio por código — agora com a **camada Gusto OS**: janelas estilo macOS, ícones 3D, tradução por IA em 5 idiomas, grafo de funcionalidades, notas da agenda, comunidade com vídeo e um mascote 3D assistente.
 
-**Versão:** `0.3.0-alpha` · [CHANGELOG](CHANGELOG.md) · [Arquitetura](docs/ARQUITETURA.md) · [LGPD](docs/LGPD.md) · Manuais da app base em [`docs/manuais/`](docs/manuais/)
+**Versão:** `0.3.1-alpha` · [CHANGELOG](CHANGELOG.md) · [Arquitetura](docs/ARQUITETURA.md) · [LGPD](docs/LGPD.md) · Manuais da app base em [`docs/manuais/`](docs/manuais/)
 
 | Ambiente | Branch | Endereço | Na VPS |
 |---|---|---|---|
@@ -34,6 +34,8 @@ test/                testes unitários (node --test)
 | segunda 06:00 | Dependabot abre PRs de dependências contra `teste` |
 | diário | backup do banco (14 dias) e atualizações de segurança do Ubuntu |
 | domingo 06:30 | manutenção da VPS: limpeza do Docker, disco, certificados, backups (`journalctl -t gusto-manutencao`) |
+
+Pacotes entregues pelo Claude em `~/m3d/entregas` são publicados sozinhos em `/teste/` pelo agente instalado com `bash deploy/mac/instalar.sh`.
 
 O que continua manual, de propósito: promover `teste → main` e reiniciar a VPS quando uma atualização pedir.
 
