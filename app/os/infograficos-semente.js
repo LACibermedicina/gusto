@@ -9,6 +9,7 @@ export const SEMENTE = [
     resumo: "Emulsão quente de gema e manteiga clarificada aromatizada por redução de estragão: o controle de 60–65 °C separa o molho nappé do molho talhado.",
     tempo: "25 min", rendimento: "≈ 300 g", nivel: "Avançado",
     historia: "Segundo a tradição, o molho foi criado por volta de 1836 pelo chef Jules Collinet, no restaurante Le Pavillon Henri IV, em Saint-Germain-en-Laye, perto de Paris. O nome homenageia o Béarn, região natal do rei Henrique IV. Tornou-se um dos molhos clássicos derivados da holandesa na cozinha francesa e companheiro tradicional de carnes grelhadas.",
+    origem: { lugar: "Saint-Germain-en-Laye, França", lat: 48.898, lon: 2.093 },
     cena: { prato: "molheira", ingredientes: ["gema", "manteiga", "vinho", "chalota", "ervas", "vinagre", "pimenta", "ovo"] },
     simples: {
       ingredientes: [{ qtd: "3", item: "gemas" }, { qtd: "200 g", item: "manteiga sem sal (clarificada, ≈ 170 g)" }, { qtd: "60 mL", item: "vinho branco seco" }, { qtd: "60 mL", item: "vinagre de vinho branco" }, { qtd: "2 (≈ 40 g)", item: "chalotas em ciselé" }, { qtd: "2 colheres (sopa)", item: "estragão picado (metade na redução, metade no final)" }, { qtd: "1 colher (sopa)", item: "cerefólio picado" }, { qtd: "1 colher (chá)", item: "pimenta mignonette" }, { qtd: "Q.B.", item: "sal" }],
@@ -48,6 +49,7 @@ export const SEMENTE = [
     resumo: "Amido liberado aos poucos, caldo sempre quente e mantecatura fora do fogo: o risoto cremoso all'onda depende de cinética, não de quantidade de queijo.",
     tempo: "30 min", rendimento: "4 porções", nivel: "Intermediário",
     historia: "Uma lenda milanesa conta que, em 1574, um aprendiz dos vitrais da Catedral de Milão, que usava açafrão para colorir o vidro, o teria posto no arroz servido num casamento. Lenda à parte, o prato aparece em receituários do século XIX, como o de Pellegrino Artusi (1891), e é hoje símbolo da cozinha lombarda, servido também ao lado do ossobuco.",
+    origem: { lugar: "Milão, Itália", lat: 45.464, lon: 9.19 },
     cena: { prato: "risoto", ingredientes: ["arroz", "caldo", "acafrao", "queijo", "manteiga", "cebola", "vinho", "sal"] },
     simples: {
       ingredientes: [{ qtd: "320 g", item: "arroz Carnaroli ou Arborio (sem lavar)" }, { qtd: "1,3 L", item: "caldo de carne claro, quente" }, { qtd: "1 pequena (≈ 80 g)", item: "cebola em brunoise" }, { qtd: "60 g", item: "manteiga (20 g para refogar + 40 g fria em cubos)" }, { qtd: "100 mL", item: "vinho branco seco" }, { qtd: "1 sachê (≈ 0,1–0,2 g)", item: "açafrão em pistilos" }, { qtd: "60 g", item: "Grana Padano ralado fino" }, { qtd: "Q.B.", item: "sal" }],
@@ -87,6 +89,7 @@ export const SEMENTE = [
     resumo: "Cocção em banho a temperatura controlada para ponto rosé de borda a borda, seguida de selagem lenta da pele: duas fases, dois objetivos físico-químicos.",
     tempo: "2 h 15 min", rendimento: "2 porções", nivel: "Intermediário",
     historia: "O magret é o peito do pato criado para o foie gras, típico do sudoeste da França (Gasconha). Servi-lo grelhado e rosado como um bife é atribuído ao chef André Daguin, em Auch, no fim dos anos 1950. A cocção sous-vide foi desenvolvida na França nos anos 1970 e hoje garante o ponto exato antes da selagem final da pele.",
+    origem: { lugar: "Auch, Gasconha, França", lat: 43.646, lon: 0.586 },
     cena: { prato: "magret", ingredientes: ["pato", "tomilho", "zimbro", "sal", "pimenta", "vinho"] },
     simples: {
       ingredientes: [{ qtd: "1 peça (≈ 350–400 g)", item: "magret de pato" }, { qtd: "≈ 1% do peso", item: "sal fino" }, { qtd: "Q.B.", item: "pimenta-do-reino moída na hora" }, { qtd: "2 ramos", item: "tomilho" }, { qtd: "3", item: "bagas de zimbro levemente amassadas" }],
@@ -126,6 +129,7 @@ export const SEMENTE = [
     resumo: "Centenas de camadas alternadas de massa e manteiga: no forno, a água vira vapor e empurra as folhas. Temperatura e repouso decidem o folhado.",
     tempo: "4 h (com repousos)", rendimento: "≈ 1,7 kg", nivel: "Avançado",
     historia: "Massas em camadas existem há séculos no Mediterrâneo e no Oriente Médio, mas a massa folhada com manteiga foi codificada pelos confeiteiros franceses: receitas aparecem em tratados do século XVII. Uma lenda popular atribui a invenção ao jovem aprendiz Claude Gellée, que depois ficaria famoso como o pintor Claude Lorrain.",
+    origem: { lugar: "França (confeitaria francesa)", lat: 48.857, lon: 2.352 },
     cena: { prato: "folhada", ingredientes: ["farinha", "manteiga", "agua", "sal", "rolo", "ovo"] },
     simples: {
       ingredientes: [{ qtd: "1 kg", item: "farinha de trigo" }, { qtd: "≈ 500 mL", item: "água gelada" }, { qtd: "20 g", item: "sal" }, { qtd: "100 g", item: "manteiga amolecida (para a détrempe)" }, { qtd: "750 g", item: "manteiga seca, fria (beurrage)" }, { qtd: "1", item: "ovo batido (dorure)" }],
@@ -165,6 +169,7 @@ export const SEMENTE = [
     resumo: "Ossos tostados, mirepoix e horas em frémissement extraem gelatina e aromas de Maillard: a base de molhos escuros e da demi-glace.",
     tempo: "6–8 h", rendimento: "≈ 4 L", nivel: "Intermediário",
     historia: "Os fundos são a base do sistema de molhos franceses. Antonin Carême organizou os grandes molhos no início do século XIX e Auguste Escoffier, em Le Guide Culinaire (1903), definiu os fundos como o alicerce da cozinha clássica. O fundo escuro de vitela, reduzido, dá origem à demi-glace e a molhos como o bordelaise e o madeira.",
+    origem: { lugar: "Paris, França (cozinha clássica)", lat: 48.857, lon: 2.352 },
     cena: { prato: "fundo", ingredientes: ["ossos", "cenoura", "cebola", "salsao", "tomate", "louro", "pimenta", "agua"] },
     simples: {
       ingredientes: [{ qtd: "5 kg", item: "ossos de vitela (joelho, rabo) cortados" }, { qtd: "500 g", item: "cebola em cubos grandes" }, { qtd: "250 g", item: "cenoura em cubos grandes" }, { qtd: "250 g", item: "salsão em cubos grandes" }, { qtd: "100 g", item: "extrato de tomate" }, { qtd: "1", item: "bouquet garni (louro, tomilho, talos de salsa)" }, { qtd: "10", item: "grãos de pimenta-do-reino" }, { qtd: "≈ 8 L", item: "água fria" }],

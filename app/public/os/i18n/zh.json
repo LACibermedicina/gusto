@@ -146,5 +146,6 @@
   "menu.sair": "退出",
   "desc.sair": "结束此浏览器中的会话。",
   "app.usuarios": "用户",
-  "desc.usuarios": "创建用户和角色、开放功能并查看审计记录。"
+  "desc.usuarios": "创建用户和角色、开放功能并查看审计记录。",
+  "grupo.radar": "食谱雷达"
 }

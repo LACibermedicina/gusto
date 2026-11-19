@@ -16,7 +16,8 @@ import { sobre } from "./mods/sobre.js";
 import { infograficos } from "./mods/infograficos.js";
 import { iniciarAvatar, alternarAvatar } from "./mods/avatar.js";
 import { instalarPonteLogin } from "./ponte.js";
-import { mostrarPortal, esconderPortal } from "./portal.js";
+import { mostrarPortal, esconderPortal, abrirFicha } from "./portal.js";
+import { iniciarRadar } from "./radar.js";
 import { iniciarDicas } from "./dicas.js";
 
 /* eslint-disable no-undef */ // S, ME, draw, gof… são globais do script da interface base
@@ -291,6 +292,7 @@ function envolverBase() {
 
 async function iniciar() {
   document.body.classList.add("os-deslogado");
+  iniciarRadar(abrirFicha);
   mostrarPortal();
   montarChrome();
   iniciarWM();

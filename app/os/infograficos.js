@@ -13,7 +13,7 @@ export async function semearInfograficos(q) {
              on conflict(slug) do nothing`, [s.slug, c.titulo, c.categoria, c, !!s.destaque]);
     // Fichas criadas antes do painel simplificado recebem só esse bloco (o resto, se editado, é preservado).
     // Blocos que surgiram depois da criação da ficha entram só se faltarem (edições do admin são preservadas).
-    for (const k of ["simples", "historia", "cena"]) {
+    for (const k of ["simples", "historia", "cena", "origem"]) {
       const v = c[k]; if (!v || (k === "cena" && !v.ingredientes.length)) continue;
       await q(`update infograficos set conteudo = jsonb_set(conteudo, $2, $3::jsonb, true)
                where slug=$1 and (coalesce(conteudo->$4,'null'::jsonb) in ('null'::jsonb, '""'::jsonb) or ($4='cena' and coalesce(jsonb_array_length(conteudo->'cena'->'ingredientes'),0)=0))`,
@@ -37,8 +37,33 @@ export function montarInfograficos(app, { q, A, E, ah, au, one, P, can }) {
   app.get(P + "/publico/infograficos/:slug", lim, ah(async (req, res) => {
     const r = one(await q("select slug,conteudo from infograficos where publicado and slug=$1", [req.params.slug]));
     if (!r) throw new E(404, "Infográfico não encontrado");
-    res.setHeader("Cache-Control", "public, max-age=120");
+    q("insert into infografico_visitas(slug,n) values($1,1) on conflict(slug,dia) do update set n=infografico_visitas.n+1", [r.slug]).catch(() => {});
+    res.setHeader("Cache-Control", "no-store");
     res.json({ slug: r.slug, ...r.conteudo });
+  }));
+
+  // ---- radar público: origem histórica, onde é feita, onde é consumida, popularidade ----
+  // Locais de preparo/consumo saem agregados em grade de ~5 km e só com 3+ registros (anonimato).
+  let cacheRadar = { em: 0, dados: null };
+  app.get(P + "/publico/radar", lim, ah(async (req, res) => {
+    if (Date.now() - cacheRadar.em > 5 * 60e3) {
+      const fichas = (await q(`select i.slug, i.titulo, i.conteudo->'origem' origem, i.receita_id,
+          coalesce((select sum(n) from infografico_visitas v where v.slug=i.slug and v.dia > current_date - 90),0)::int visitas,
+          coalesce((select count(*) from orders o where o.recipe_id=i.receita_id and o.status<>'cancelled'),0)::int pedidos
+        from infograficos i where i.publicado order by i.destaque desc, i.atualizado_em desc limit 60`)).rows;
+      const grade = async (sql, id) => id ? (await q(sql, [id]).catch(() => ({ rows: [] }))).rows.map(r => ({ lat: +r.lat, lon: +r.lon, n: +r.n })) : [];
+      for (const f of fichas) {
+        f.feita = await grade(`select round(st_y(k.location::geometry)::numeric*20)/20 lat, round(st_x(k.location::geometry)::numeric*20)/20 lon, count(*) n
+          from orders o join kitchens k on k.owner_id=o.cook_id where o.recipe_id=$1 and k.location is not null and o.status<>'cancelled'
+          group by 1,2 having count(*)>=3`, f.receita_id);
+        f.consumida = await grade(`select round(st_y(delivery_to::geometry)::numeric*20)/20 lat, round(st_x(delivery_to::geometry)::numeric*20)/20 lon, count(*) n
+          from orders where recipe_id=$1 and delivery_to is not null and status<>'cancelled' group by 1,2 having count(*)>=3`, f.receita_id);
+        delete f.receita_id;
+      }
+      cacheRadar = { em: Date.now(), dados: { referencia: { lugar: "São Paulo", lat: -23.55, lon: -46.633 }, fichas } };
+    }
+    res.setHeader("Cache-Control", "public, max-age=120");
+    res.json(cacheRadar.dados);
   }));
 
   // ---- gestão (funcionalidade "infograficos"; root sempre pode) ----
@@ -83,6 +108,12 @@ export function montarInfograficos(app, { q, A, E, ah, au, one, P, can }) {
       [req.params.slug, conteudo, conteudo.titulo, conteudo.categoria, typeof req.body?.publicado === "boolean" ? req.body.publicado : null, typeof req.body?.destaque === "boolean" ? req.body.destaque : null]);
     await au({ query: q }, req.u.id, "infografico.editar", "infograficos", req.params.slug, { publicado: req.body?.publicado });
     res.json({ ok: r.rowCount === 1 });
+  }));
+  app.put(P + "/infograficos/:slug/receita", A, pode, ah(async (req, res) => {
+    const id = req.body?.receita_id || null;
+    if (id && !one(await q("select 1 x from recipes where id=$1", [id]))) throw new E(400, "Receita inexistente");
+    await q("update infograficos set receita_id=$2 where slug=$1", [req.params.slug, id]);
+    cacheRadar.em = 0; res.json({ ok: true });
   }));
   app.delete(P + "/infograficos/:slug", A, pode, ah(async (req, res) => {
     await q("delete from infograficos where slug=$1", [req.params.slug]);

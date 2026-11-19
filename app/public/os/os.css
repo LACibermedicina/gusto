@@ -454,3 +454,43 @@ body.mm #os-portal { display: none; }
 @media (max-width: 860px) { .fe { grid-template-columns: 1fr; } .fe-img .cena { min-height: 0; } }
 @container (max-width: 860px) { .fe { grid-template-columns: 1fr; } .fe-img .cena { min-height: 0; } }
 .pt-hero .pt-txt { flex: none; }
+
+/* ======================= Radar de fundo (v0.6) ======================= */
+body:not(.mm) #bg { display: none !important; }            /* mapa antigo só no modo Mapa */
+body.mm #os-radar { display: none; }
+#os-radar { position: absolute; top: 0; left: 0; right: 0; height: 420px; z-index: 0; pointer-events: none; overflow: hidden; font-family: var(--os-fonte); }
+body.os-logado #os-radar { display: none; }
+.rd-disco { position: absolute; overflow: hidden; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(255,240,225,.0) 30%, rgba(232,89,12,.035) 100%); }
+.rd-varredura { left: 0; }
+.rd-svg { position: absolute; inset: 0; }
+.rd-aneis ellipse, .rd-aneis circle { fill: none; stroke: rgba(92,35,51,.11); stroke-width: 1; stroke-dasharray: 2 5; }
+.rd-aneis line { stroke: rgba(92,35,51,.06); }
+.rd-aneis text { font-size: 10px; fill: rgba(92,35,51,.32); letter-spacing: .04em; }
+.rd-aneis .rd-card { font-weight: 800; font-size: 11px; }
+.rd-varredura { position: absolute; border-radius: 50%; background: conic-gradient(from 0deg, rgba(232,89,12,.045), rgba(232,89,12,0) 40deg); animation: rd-gira 16s linear infinite; }
+@keyframes rd-gira { to { transform: rotate(360deg); } }
+.rd-centro circle { fill: #e8590c; opacity: .55; } .rd-centro .rd-pulso { fill: none; stroke: #e8590c; stroke-width: 1.5; animation: rd-pulso 3s ease-out infinite; transform-origin: center; }
+@keyframes rd-pulso { from { r: 6; opacity: .6; } to { r: 26; opacity: 0; } }
+.rd-centro text { font-size: 10px; fill: rgba(43,33,24,.45); }
+.rd-pt { pointer-events: auto; cursor: default; transition: opacity .2s; }
+.rd-orig { cursor: pointer; } .rd-orig rect { fill: #5c2333; opacity: .5; } .rd-orig text { font-size: 11px; fill: rgba(43,33,24,.45); }
+.rd-orig:hover rect { opacity: 1; } .rd-orig:hover text { fill: #2b2118; font-weight: 700; }
+.rd-feita circle { fill: #e8590c; opacity: .45; } .rd-cons circle { fill: none; stroke: #2b8a3e; stroke-width: 2; opacity: .55; }
+.rd-pt:hover circle { opacity: 1; }
+.rd-legenda { position: absolute; left: 14px; top: 76px; z-index: 2; pointer-events: auto; max-width: 270px; padding: 10px 12px; border-radius: 12px; font-size: 12px; line-height: 1.45; color: #4a3f36;
+  background: rgba(255,250,244,.78); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(120,80,40,.14); box-shadow: 0 6px 18px -12px rgba(40,20,5,.4); opacity: .85; transition: opacity .2s; }
+.rd-legenda:hover { opacity: 1; }
+.rd-legenda b { color: #2b2118; } .rd-legenda ul { list-style: none; margin: 6px 0; padding: 0; } .rd-legenda li { display: flex; align-items: center; gap: 7px; }
+.rd-ic { display: inline-block; flex: none; width: 10px; height: 10px; }
+.rd-ic-orig { background: #5c2333; transform: rotate(45deg) scale(.8); } .rd-ic-feita { background: #e8590c; border-radius: 50%; opacity: .7; }
+.rd-ic-cons { border: 2px solid #2b8a3e; border-radius: 50%; } .rd-ic-tam { background: radial-gradient(circle, #5c2333 30%, transparent 32%), radial-gradient(circle, #5c2333 45%, transparent 47%); background-size: 6px 6px, 10px 10px; background-repeat: no-repeat; background-position: 0 50%, 100% 50%; width: 18px; }
+.rd-ic-anel { border: 1px dashed rgba(92,35,51,.5); border-radius: 50%; }
+.rd-ref, .rd-nota { margin: 4px 0 0; font-size: 11px; } .rd-nota:empty { display: none; } .rd-nota { color: #7a6a5a; }
+.rd-loc, .rd-fecha { border: 0; padding: 0; background: none; color: #c2410c; font: 600 11px var(--os-fonte); text-decoration: underline; cursor: pointer; }
+.rd-fecha { float: right; color: #7a6a5a; }
+.rd-abre { display: none; width: 34px; height: 34px; border: 0; border-radius: 50%; background: transparent; color: #5c2333; font-size: 20px; cursor: pointer; padding: 0; }
+.rd-legenda.rd-fechada { padding: 2px; border-radius: 50%; } .rd-fechada .rd-corpo { display: none; } .rd-fechada .rd-abre { display: block; }
+@media (max-width: 1100px) { .rd-orig text { display: none; } }
+@media (max-width: 720px) { .rd-legenda { top: auto; bottom: 8px; max-width: 210px; font-size: 11px; } }
+@media (prefers-reduced-motion: reduce) { .rd-varredura, .rd-pulso { animation: none !important; } }
+.rd-guia { stroke: rgba(92,35,51,.25); stroke-width: 1; fill: none; }

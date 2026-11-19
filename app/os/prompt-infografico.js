@@ -17,6 +17,7 @@ Escreva em português do Brasil. Responda SOMENTE com um objeto JSON neste forma
  "resumo": "1–2 frases para o card do portal (≤ 280 caracteres)",
  "tempo": "tempo total", "rendimento": "rendimento", "nivel": "Básico|Intermediário|Avançado",
  "historia": "origem e história do prato em 2–4 frases; datas e atribuições só quando documentadas, com 'segundo a tradição' para lendas",
+ "origem": {"lugar": "cidade/região, país da origem histórica", "lat": número, "lon": número},
  "cena": {"prato": "um de: ${PRATOS_CENA.join(", ")}", "ingredientes": [até 8 chaves de: ${INGREDIENTES_CENA.join(", ")}]},
  "simples": {   // painel de entrada, para quem só quer cozinhar
    "ingredientes": [2–25 objetos {"qtd": "quantidade com unidade (g, mL, unid., Q.B.)", "item": "ingrediente e corte"}],

@@ -6,6 +6,19 @@ Fluxo: toda mudança entra pela branch `teste` (https://gusto.m3d.pro/teste/) e 
 ## [Não lançado]
 Próxima iteração (sugestão, ver `docs/ARQUITETURA.md` §8): ligar a interface base à API (login único), testes de integração com PostGIS no CI, TURN em produção.
 
+## [0.6.0-alpha] — 2026-11-19
+### Alterado
+- **Fundo antes do login:** o mapa antigo foi removido (continua só no modo Mapa da Cozinha). No lugar, um **radar de receitas** discreto em volta da caixa de login: disco inclinado com anéis de distância em escala logarítmica (1 a 10.000 km) e varredura suave.
+
+### Adicionado
+- **Pontos do radar:** ◆ origem histórica de cada receita (com distância de você), ● onde está sendo feita, ○ onde está sendo consumida; o tamanho indica a popularidade (aberturas da ficha em 90 dias + pedidos). Passar o mouse mostra o detalhe; clicar numa origem abre a receita.
+- **Legenda** com os três tipos de ponto, escala e centro (São Paulo por padrão; "usar minha localização" fica só no navegador, arredondada). Pode ser ocultada.
+- **Privacidade:** locais de preparo e consumo saem agregados em grade de ≈ 5 km e só com 3 ou mais pedidos; popularidade é só uma contagem diária anônima de aberturas (`infografico_visitas`, sem IP nem usuário).
+- Campo `origem {lugar, lat, lon}` nas fichas (5 semeadas com a cidade/região histórica); vínculo opcional ficha ↔ receita do app (`receita_id`, rota de admin) para contar pedidos. Migração `007_radar.sql`.
+
+### Observação
+- Enquanto não houver pedidos registrados na API, o radar mostra só as origens e avisa isso na legenda.
+
 ## [0.5.0-alpha] — 2026-11-19
 ### Adicionado
 - **Apresentação ilustrada da receita:** ao abrir um card, a primeira tela mostra uma ilustração 3D estilizada (estilo animação, vetorial e original) do prato pronto com os ingredientes ao redor, a lista de ingredientes com quantidades, tempo, rendimento, nível, a descrição resumida e a **história do prato**.

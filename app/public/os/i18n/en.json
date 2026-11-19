@@ -146,5 +146,6 @@
   "menu.sair": "Sign out",
   "desc.sair": "Ends the session in this browser.",
   "app.usuarios": "Users",
-  "desc.usuarios": "Create users and roles, enable features and view the audit log."
+  "desc.usuarios": "Create users and roles, enable features and view the audit log.",
+  "grupo.radar": "Recipe radar"
 }

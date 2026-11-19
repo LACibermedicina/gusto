@@ -28,6 +28,14 @@ export const INGREDIENTES_CENA = ["gema", "ovo", "manteiga", "vinho", "vinagre",
 export const slugificar = s => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
   .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "infografico";
 
+/** Origem histórica do prato (para o radar). Coordenadas aproximadas da cidade/região. */
+export function validarOrigem(o) {
+  if (!o || typeof o !== "object") return null;
+  const lat = +o.lat, lon = +o.lon;
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) return null;
+  return { lugar: txt(o.lugar, 80, "origem", false) || "?", lat: +lat.toFixed(3), lon: +lon.toFixed(3) };
+}
+
 /** Painel simplificado: ingredientes com quantidade + modo de preparo em passos curtos. Opcional em fichas antigas. */
 export function validarSimples(v, obrigatorio = false) {
   if (!v) { if (obrigatorio) throw erro("Painel simplificado obrigatório (ingredientes e modo de preparo)"); return null; }
@@ -54,6 +62,7 @@ export function validarInfografico(d) {
     rendimento: txt(d.rendimento, 40, "rendimento", false),
     nivel: txt(d.nivel, 30, "nivel", false),
     historia: txt(d.historia, 700, "história", false),
+    origem: validarOrigem(d.origem),
     cena: {
       prato: PRATOS_CENA.includes(d.cena?.prato) ? d.cena.prato : "generico",
       ingredientes: [...new Set((Array.isArray(d.cena?.ingredientes) ? d.cena.ingredientes : []).filter(i => INGREDIENTES_CENA.includes(i)))].slice(0, 8)

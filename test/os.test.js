@@ -135,6 +135,7 @@ test("infográficos semeados cumprem o padrão (cabeçalho + 4 quadrantes + refe
     assert.ok(d.simples && d.simples.ingredientes.length >= 2 && d.simples.preparo.length >= 2, `${s.slug}: painel simplificado`);
     assert.ok(d.simples.ingredientes.every(i => i.qtd), `${s.slug}: ingrediente sem quantidade`);
     assert.ok(d.historia.length > 120, `${s.slug}: história`);
+    assert.ok(d.origem && Math.abs(d.origem.lat) <= 90 && d.origem.lugar, `${s.slug}: origem histórica`);
     assert.notEqual(d.cena.prato, "generico", `${s.slug}: cena`); assert.ok(d.cena.ingredientes.length >= 5, `${s.slug}: ingredientes na cena`);
   }
 });
@@ -161,4 +162,10 @@ test("cena: chaves do servidor e do desenho são as mesmas", async () => {
   assert.deepEqual([...cena.INGREDIENTES_CENA].sort(), [...INGREDIENTES_CENA].sort());
   const svg = cena.cenaSVG({ prato: "risoto", ingredientes: ["arroz", "queijo", "inexistente"] }, "x");
   assert.match(svg, /^<svg/); assert.ok(!svg.includes("undefined"));
+});
+
+test("origem: coordenadas inválidas viram null", async () => {
+  const { validarOrigem } = await import("../app/os/infografico-esquema.js");
+  assert.equal(validarOrigem({ lugar: "x", lat: 200, lon: 0 }), null);
+  assert.deepEqual(validarOrigem({ lugar: "Milão", lat: 45.46412, lon: 9.19 }), { lugar: "Milão", lat: 45.464, lon: 9.19 });
 });

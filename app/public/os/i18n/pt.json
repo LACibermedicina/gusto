@@ -146,5 +146,6 @@
   "menu.sair": "Sair",
   "desc.sair": "Encerra a sessão neste navegador.",
   "app.usuarios": "Usuários",
-  "desc.usuarios": "Criar usuários, papéis, liberar funcionalidades e ver a auditoria."
+  "desc.usuarios": "Criar usuários, papéis, liberar funcionalidades e ver a auditoria.",
+  "grupo.radar": "Radar de receitas"
 }
