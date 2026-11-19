@@ -6,6 +6,17 @@ Fluxo: toda mudança entra pela branch `teste` (https://gusto.m3d.pro/teste/) e 
 ## [Não lançado]
 Próxima iteração (sugestão, ver `docs/ARQUITETURA.md` §8): ligar a interface base à API (login único), testes de integração com PostGIS no CI, TURN em produção.
 
+## [0.3.0-alpha] — 2026-11-19
+Reorganização da interface no padrão macOS.
+
+### Alterado
+- **Antes do login:** a barra superior mostra só as 5 bandeiras de idioma, pequenas e semitransparentes no canto; abaixo, apenas a tela de login e as fichas públicas.
+- **Depois do login:** barra de menus no topo (Gusto · Cozinha · Estudo · Comunidade · Administração · Conta) com papel em uso, créditos, modo detalhado, acessibilidade, bandeiras, relógio e usuário; o cabeçalho antigo da base some.
+- **Menu lateral → dock inferior:** a barra de ícones da base passou a ser a única dock, no estilo macOS (ampliação ao passar o mouse), agrupada com divisores: Cozinha (Início, Cartas, Pedidos, Agenda, Carteira, Mapa, Mais, Guardados, Avisos) | Estudo (Fichas, Notas) | Comunidade (Comunidade, Assistente) | Administração (Grafo, Usuários) | Conta (Conta, Privacidade, Sobre). Ponto embaixo do ícone indica janela aberta. A coluna de ícones à direita e o menu lateral foram removidos.
+- **Mesa vazia:** logado, a área de trabalho mostra só as fichas públicas para consulta; o conteúdo da base abre na janela **Cozinha** ao escolher um item do grupo.
+- **Quadros explicativos ao passar o mouse** em todos os itens da dock e dos menus (grupo, nome e o que faz), nas 5 línguas.
+- **Grafo só para o administrador:** migração `006_grafo_admin.sql` desliga `os_graph` globalmente (o root continua com acesso); o grupo Administração só aparece para o root.
+
 ## [0.2.0-alpha] — 2026-11-18
 Portal público e portão de login.
 

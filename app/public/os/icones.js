@@ -50,6 +50,12 @@ const GLIFOS = {
     <g fill="#ffd8a8"><rect x="14" y="29" width="17" height="10" rx="2"/><rect x="33" y="29" width="17" height="10" rx="2"/></g>
     <g fill="#c5f6fa"><rect x="14" y="41" width="17" height="10" rx="2"/><rect x="33" y="41" width="17" height="10" rx="2"/></g>
     <g fill="url(#${p}h)"><circle cx="44" cy="10" r="5"/><circle cx="50" cy="8" r="5.5"/><circle cx="56" cy="10" r="5"/><rect x="43" y="10" width="14" height="5" rx="2"/></g>`,
+  cozinha: p => `<defs>${esfera(p + "a", "#868e96", "#212529")}<linearGradient id="${p}c" x1="0" x2="1"><stop offset="0" stop-color="#ffa94d"/><stop offset="1" stop-color="#d9480f"/></linearGradient></defs>
+    ${sombra(30, 58, 22)}
+    <ellipse cx="28" cy="38" rx="20" ry="13" fill="url(#${p}a)"/><ellipse cx="28" cy="35" rx="16" ry="9" fill="#343a40"/>
+    <rect x="44" y="33" width="18" height="6" rx="3" transform="rotate(-12 44 36)" fill="url(#${p}c)"/>
+    <ellipse cx="24" cy="34" rx="6" ry="4" fill="#fff"/><circle cx="25" cy="34" r="2.6" fill="#ffd43b"/>
+    <path d="M18 22 q4 -6 0 -12 M28 20 q4 -6 0 -12 M38 22 q4 -6 0 -12" stroke="#ced4da" stroke-width="2.4" fill="none" stroke-linecap="round"/>${brilho(20, 30, 5, 1.6)}`,
   sobre: p => `<defs>${esfera(p + "a", "#91a7ff", "#3b5bdb")}</defs>
     ${sombra(32, 58, 18)}<circle cx="32" cy="31" r="21" fill="url(#${p}a)"/>${brilho(24, 20, 7, 3)}
     <circle cx="32" cy="21" r="3.6" fill="#fff"/><rect x="28.5" y="28" width="7" height="17" rx="3.5" fill="#fff"/>`,
@@ -60,7 +66,7 @@ const GLIFOS = {
 
 export const CORES = {
   grafo: ["#fff4e6", "#ffd8a8"], notas: ["#fff9db", "#ffe8a3"], comunidade: ["#e7f5ff", "#a5d8ff"],
-  assistente: ["#fff0f6", "#ffc9de"], infograficos: ["#fff5f5", "#e9b8c2"], privacidade: ["#ebfbee", "#b2f2bb"], sobre: ["#edf2ff", "#bac8ff"], conta: ["#fff4e6", "#ffc078"]
+  assistente: ["#fff0f6", "#ffc9de"], infograficos: ["#fff5f5", "#e9b8c2"], cozinha: ["#fff4e6", "#ffc078"], privacidade: ["#ebfbee", "#b2f2bb"], sobre: ["#edf2ff", "#bac8ff"], conta: ["#fff4e6", "#ffc078"]
 };
 
 let seq = 0;

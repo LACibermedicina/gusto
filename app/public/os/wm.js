@@ -157,7 +157,7 @@ function arrastar(alca, j, mover) {
 export function iniciarWM() {
   document.addEventListener("dblclick", e => {
     if (!ativa) return;
-    if (e.target.closest(".os-janela,.os-chrome,input,textarea,select,[contenteditable]")) return;
+    if (e.target.closest(".os-janela,.os-chrome,#nv,#pp,.os-menu-pop,.os-dica,.ig-modal,.os-modal,input,textarea,select,[contenteditable]")) return;
     fechar(ativa);
   });
   document.addEventListener("keydown", e => {

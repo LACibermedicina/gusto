@@ -320,3 +320,67 @@ body.os-deslogado { padding-bottom: 24px; }
 @media (max-width: 720px) { .igm { grid-template-columns: 1fr; } }
 .igm-ver { container-type: inline-size; }
 @container (max-width: 900px) { .ig-grade, .ig-topicos { grid-template-columns: 1fr; } }
+
+/* ======================= v0.3: barra de menus, dock única, dicas ======================= */
+.os-topo, .os-mesa, .os-lateral, .os-veu { display: none !important; }       /* layout antigo (≤ v0.2) */
+
+/* Bandeiras: discretas antes do login (canto superior direito); dentro da barra depois */
+.os-idiomas { position: fixed; top: 14px; right: 14px; z-index: 9500; display: flex; align-items: center; gap: 5px; opacity: .45; transition: opacity .2s; }
+.os-idiomas:hover, .os-idiomas:focus-within { opacity: 1; }
+.os-idiomas .os-bandeira { width: 20px; height: 14px; border-radius: 3px; box-shadow: 0 0 0 1px rgba(0,0,0,.12); }
+.os-idiomas .os-bandeira:hover { transform: scale(1.15); }
+.os-idiomas .os-bandeira.os-sel { box-shadow: 0 0 0 1.5px #fff, 0 0 0 3px var(--os-laranja); transform: none; }
+.os-mb-dir .os-idiomas { position: static; opacity: .6; }
+
+/* Barra de menus (só logado) */
+.os-menubar { position: fixed; top: 0; left: 0; right: 0; z-index: 9500; height: 36px; display: flex; align-items: center; gap: 2px; padding: 0 10px;
+  background: rgba(255,250,244,.82); backdrop-filter: blur(20px) saturate(1.7); -webkit-backdrop-filter: blur(20px) saturate(1.7); border-bottom: 1px solid var(--os-borda); font: 500 13px var(--os-fonte); }
+body.os-deslogado .os-menubar, body.os-deslogado .os-menu-pop { display: none !important; }
+.os-mb-logo, .os-mb-item { display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border: 0; border-radius: 7px; background: none; color: var(--os-texto); font: inherit; cursor: default; }
+.os-mb-logo svg { width: 22px; height: 22px; } .os-mb-logo b { font-weight: 800; }
+.os-mb-logo:hover, .os-mb-item:hover, .os-menubar .os-on { background: rgba(232,89,12,.14); }
+.os-mb-grupos { display: flex; gap: 2px; min-width: 0; overflow: hidden; }
+.os-mb-dir { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.os-mb-base { display: flex; align-items: center; gap: 4px; }
+.os-mb-base select { width: auto !important; height: 26px; padding: 0 8px; border-radius: 7px; font-size: 12px; background: transparent; }
+.os-mb-base button, .os-mb-base .chip { height: 26px; padding: 0 7px; border: 0; background: transparent; border-radius: 7px; font-size: 14px; }
+.os-mb-base button:hover { background: rgba(232,89,12,.12); }
+.os-mb-user { font-weight: 600; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.os-menu-pop { position: fixed; top: 38px; z-index: 9600; width: 320px; max-width: calc(100vw - 12px); max-height: calc(100vh - 140px); overflow: auto; padding: 6px;
+  background: rgba(255,250,244,.92); backdrop-filter: blur(22px) saturate(1.7); -webkit-backdrop-filter: blur(22px) saturate(1.7); border: 1px solid var(--os-borda); border-radius: 12px; box-shadow: var(--os-sombra); font-family: var(--os-fonte); }
+.os-mi { display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 8px; border: 0; border-radius: 8px; background: none; color: var(--os-texto); font: 500 14px var(--os-fonte); text-align: left; cursor: default; }
+.os-mi:hover, .os-mi:focus-visible { background: var(--os-laranja); color: #fff; outline: none; }
+.os-mi svg, .os-mi-em { width: 26px; height: 26px; flex: none; font-size: 20px; line-height: 26px; text-align: center; }
+.os-mi small { display: none; }
+.os-mi-grupo { margin: 2px 8px 6px; font-size: 12px; color: var(--os-mu); line-height: 1.4; }
+.os-menu-pop hr { border: 0; border-top: 1px solid var(--os-borda); margin: 4px 6px; }
+
+/* Mesa vazia: só as fichas; a base abre na janela Cozinha */
+body.os-logado > header { display: none !important; }
+body.os-logado { padding-top: 36px; }
+body.os-logado #v:not(.os-em-janela) { display: none; }
+body.os-logado #os-portal { margin-top: 18px; }
+body.mm #os-portal { display: none; }
+.os-cozinha-corpo { padding: 0 !important; background: var(--bg, #fff8f0); }
+.os-cozinha-corpo main#v { max-width: none; padding: 6px 14px 20px; opacity: 1; pointer-events: auto; }
+
+/* Dock única: navegação da base + grupos do Gusto OS */
+#nv .os-dk { position: relative; }
+#nv .os-dk .os-dk-ic { display: block; height: 26px; }
+#nv .os-dk svg { width: 28px; height: 28px; filter: drop-shadow(0 2px 2px rgba(60,30,10,.25)); }
+#nv button.os-rodando::after, #nv .os-dk.os-rodando::after { content: ""; position: absolute; bottom: -2px; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--os-texto); }
+#nv .os-dk .os-ponto { display: none; }
+@media (max-width: 720px) { body.os-logado #nv { overflow-x: auto; justify-content: flex-start; } .os-mb-grupos .os-mb-item { padding: 0 6px; font-size: 12px; } .os-mb-user, .os-relogio { display: none; } }
+
+/* Quadros explicativos (hover) */
+.os-dica { position: fixed; z-index: 9990; max-width: 280px; padding: 8px 11px; border-radius: 10px; background: #2b2118; color: #fff; font: 13px/1.4 var(--os-fonte); box-shadow: 0 10px 24px -8px rgba(0,0,0,.45); pointer-events: none; animation: os-surge .15s ease-out; }
+.os-dica small { display: block; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #ffc078; margin-bottom: 1px; }
+.os-dica b { display: block; font-size: 13px; } .os-dica p { margin: 3px 0 0; color: #e9e2d8; font-size: 12px; }
+#os-avatar { bottom: 96px; right: 16px; }
+.os-mi-idiomas { display: flex; gap: 8px; padding: 6px 8px; }
+.os-mi-idiomas .os-bandeira { width: 28px; height: 19px; }
+@media (max-width: 720px) {
+  .os-mb-dir .os-idiomas, .os-mb-base > :not(#lo) { display: none !important; }
+  .os-mb-grupos { overflow-x: auto; scrollbar-width: none; } .os-mb-logo b { display: none; }
+  .os-menubar { padding: 0 4px; gap: 0; }
+}
