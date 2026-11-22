@@ -80,7 +80,12 @@ export function montarContas(app, ctx) {
   const origem = (env.PUBLIC_URL || "").replace(/\/+$/, "");
   const retornoDe = (req, p) => `${origem || `${req.protocol}://${req.get("host")}${BP}`}${P}/oauth/${p}/retorno`;
   const seguro = env.COOKIE_SECURE === "0" ? "" : "; Secure";
-  const limite = rateLimit({ windowMs: 15 * 60000, max: 10, standardHeaders: true, legacyHeaders: false, message: { error: "Muitas tentativas. Tente de novo em alguns minutos." } });
+  // Limites separados: a checagem de disponibilidade roda enquanto a pessoa digita e não pode gastar a cota do cadastro.
+  const lim = (max, min, extra = {}) => rateLimit({ windowMs: min * 60000, max, standardHeaders: true, legacyHeaders: false, message: { error: "Muitas tentativas. Tente de novo em alguns minutos." }, ...extra });
+  const limDisponivel = lim(120, 5);
+  const limRegistro = lim(20, 60, { skipFailedRequests: true });  // 20 contas criadas por IP por hora; erros de digitação não contam
+  const limRegistroErros = lim(30, 15);                            // trava tentativas em massa (com ou sem sucesso)
+  const limOAuth = lim(30, 15);
 
   async function abrirSessao(req, res, uid) {
     const t = crypto.randomBytes(32).toString("hex");
@@ -111,14 +116,14 @@ export function montarContas(app, ctx) {
     res.json({ registro: registroAberto, provedores: Object.entries(pv).map(([cod, p]) => ({ cod, nome: p.nome, ativo: p.ativo })) });
   });
 
-  app.get(P + "/contas/disponivel", limite, ah(async (req, res) => {
+  app.get(P + "/contas/disponivel", limDisponivel, ah(async (req, res) => {
     const u = String(req.query.u || "").toLowerCase();
     if (!USUARIO_RE.test(u) || RESERVADOS.has(u)) return res.json({ ok: false, motivo: "formato" });
     res.json({ ok: !one(await q("select 1 from users where username=$1", [u])) });
   }));
 
   // ---------- cadastro com usuário e senha ----------
-  app.post(P + "/registro", limite, ah(async (req, res) => {
+  app.post(P + "/registro", limRegistroErros, limRegistro, ah(async (req, res) => {
     if (!registroAberto) throw new E(403, "Cadastro fechado");
     const username = String(req.body.username || "").trim().toLowerCase();
     const nome = String(req.body.nome || "").trim().replace(/\s+/g, " ");
@@ -137,7 +142,7 @@ export function montarContas(app, ctx) {
   }));
 
   // ---------- OAuth: início ----------
-  app.get(P + "/oauth/:prov/inicio", limite, talvez, ah(async (req, res) => {
+  app.get(P + "/oauth/:prov/inicio", limOAuth, talvez, ah(async (req, res) => {
     const cod = req.params.prov, p = provedores(env)[cod];
     if (!p) throw new E(404, "Provedor desconhecido");
     if (!p.ativo) return res.redirect(`${BP}/?oauth=indisponivel`);

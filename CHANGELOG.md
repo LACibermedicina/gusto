@@ -6,6 +6,14 @@ Fluxo: toda mudança entra pela branch `teste` (https://gusto.m3d.pro/teste/) e 
 ## [Não lançado]
 Próxima iteração (sugestão, ver `docs/ARQUITETURA.md` §8): ligar a interface base à API (login único), testes de integração com PostGIS no CI, TURN em produção.
 
+## [0.9.1-alpha] — 2026-11-22
+### Corrigido
+- **Criar conta** devolvia "Muitas tentativas" logo na primeira tentativa: a checagem de usuário disponível (que roda enquanto se digita) e o cadastro dividiam o mesmo limite de 10 pedidos a cada 15 min por IP. Agora os limites são separados:
+  - checagem: 120 a cada 5 min;
+  - cadastro: 20 contas criadas por hora por IP, sem contar erros de preenchimento, e no máximo 30 tentativas a cada 15 min;
+  - início do OAuth: 30 a cada 15 min.
+- A checagem espera 0,5 s depois da última tecla.
+
 ## [0.9.0-alpha] — 2026-11-19
 ### Adicionado
 - **Vídeos dos pratos**, ligados a cada receita pública:

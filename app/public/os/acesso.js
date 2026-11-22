@@ -112,7 +112,7 @@ export function montarAcesso(alvo, { entrarComSenha, aoEntrar }) {
       if (!r || formC.u.value !== v) return;
       disp.textContent = r.ok ? t("ac.livre") : t(r.motivo === "formato" ? "ac.reservado" : "ac.ocupado");
       disp.classList.add(r.ok ? "os-bem" : "os-mal");
-    }, 350);
+    }, 500);
   });
   formC.addEventListener("submit", async e => {
     e.preventDefault(); erro.textContent = "";
